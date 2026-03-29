@@ -5,8 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>BRAIN BLAST! — Trivia</title>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@700;800;900&family=Lilita+One&display=swap" rel="stylesheet">
-
-<!-- SVG filters for wobbly hand-drawn effect -->
 <svg width="0" height="0" style="position:absolute">
   <defs>
     <filter id="wobble" x="-5%" y="-5%" width="110%" height="110%">
@@ -17,180 +15,47 @@
       <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="7" result="noise"/>
       <feDisplacementMap in="SourceGraphic" in2="noise" scale="7" xChannelSelector="R" yChannelSelector="G"/>
     </filter>
-    <filter id="outline-fat">
-      <feMorphology operator="dilate" radius="2" in="SourceAlpha" result="expanded"/>
-      <feFlood flood-color="#1A1A2E" result="color"/>
-      <feComposite in="color" in2="expanded" operator="in" result="outline"/>
-      <feMerge><feMergeNode in="outline"/><feMergeNode in="SourceGraphic"/></feMerge>
-    </filter>
   </defs>
 </svg>
-
 <style>
   :root {
-    /* Louder, more saturated cartoon palette */
-    --sky:#5BC8F5;
-    --sky2:#A8E6FF;
-    --yellow:#FFD700;
-    --yellow2:#FFEC6E;
-    --coral:#FF4545;
-    --coral2:#FF8080;
-    --mint:#00D4C8;
-    --purple:#B44FFF;
-    --orange:#FF8C00;
-    --green:#22CC55;
-    --blue:#1A7FFF;
-    --pink:#FF3FAA;
-    --red:#FF1111;
-    --ink:#0D0D1A;
-    --cream:#FFFFF0;
-    --paper:#FFFDE8;
-    --outline:5px solid var(--ink);
-    --shadow:6px 6px 0px var(--ink);
-    --shadow-lg:9px 9px 0px var(--ink);
-    --shadow-xl:12px 12px 0px var(--ink);
+    --sky:#5BC8F5;--sky2:#A8E6FF;--yellow:#FFD700;--yellow2:#FFEC6E;
+    --coral:#FF4545;--coral2:#FF8080;--mint:#00D4C8;--purple:#B44FFF;
+    --orange:#FF8C00;--green:#22CC55;--blue:#1A7FFF;--pink:#FF3FAA;
+    --red:#FF1111;--ink:#0D0D1A;--cream:#FFFFF0;--paper:#FFFDE8;
+    --outline:5px solid var(--ink);--shadow:6px 6px 0px var(--ink);
+    --shadow-lg:9px 9px 0px var(--ink);--shadow-xl:12px 12px 0px var(--ink);
   }
   *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Nunito',sans-serif;background:var(--sky);color:var(--ink);min-height:100vh;overflow-x:hidden;
+    background-image:radial-gradient(circle,rgba(255,255,255,0.55) 1.5px,transparent 1.5px),linear-gradient(160deg,#5BC8F5 0%,#A8E6FF 50%,#C8F8E0 100%);
+    background-size:22px 22px,100% 100%;}
+  .cloud-bg{position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:radial-gradient(ellipse at 10% 15%,rgba(255,255,255,0.8) 0%,rgba(255,255,255,0.4) 20%,transparent 50%),
+    radial-gradient(ellipse at 80% 8%,rgba(255,255,255,0.7) 0%,rgba(255,255,255,0.3) 18%,transparent 45%);}
 
-  body{
-    font-family:'Nunito',sans-serif;
-    background: var(--sky);
-    color:var(--ink);
-    min-height:100vh;
-    overflow-x:hidden;
-    /* Comic halftone background */
-    background-image:
-      radial-gradient(circle, rgba(255,255,255,0.55) 1.5px, transparent 1.5px),
-      linear-gradient(160deg, #5BC8F5 0%, #A8E6FF 50%, #C8F8E0 100%);
-    background-size: 22px 22px, 100% 100%;
-  }
-
-  /* Animated gradient sky */
-  .cloud-bg{
-    position:fixed;inset:0;pointer-events:none;z-index:0;
-    background:
-      radial-gradient(ellipse at 10% 15%, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.4) 20%, transparent 50%),
-      radial-gradient(ellipse at 80% 8%,  rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.3) 18%, transparent 45%),
-      radial-gradient(ellipse at 45% 70%, rgba(255,255,255,0.3) 0%, transparent 35%);
-  }
-  /* Remove old dots bg — halftone is in body now */
-  .dots-bg{ display:none; }
-
-  /* ── ANIMATIONS (beefed up) ── */
-  @keyframes bounce-in{
-    0%  {transform:scale(0) rotate(-15deg);}
-    55% {transform:scale(1.35) rotate(6deg);}
-    75% {transform:scale(0.9) rotate(-3deg);}
-    90% {transform:scale(1.08) rotate(2deg);}
-    100%{transform:scale(1) rotate(0);}
-  }
-  @keyframes wiggle{
-    0%,100%{transform:rotate(-6deg) scale(1.05);}
-    50%    {transform:rotate(6deg)  scale(1.05);}
-  }
-  @keyframes bob{
-    0%,100%{transform:translateY(0) rotate(-1deg);}
-    50%    {transform:translateY(-12px) rotate(1deg);}
-  }
-  @keyframes stamp-in{
-    0%  {transform:scale(3) rotate(20deg);opacity:0;}
-    65% {transform:scale(0.85) rotate(-5deg);opacity:1;}
-    82% {transform:scale(1.12) rotate(2deg);}
-    100%{transform:scale(1) rotate(0);}
-  }
-  @keyframes slide-up{
-    from{transform:translateY(50px) rotate(-2deg);opacity:0;}
-    to  {transform:translateY(0)    rotate(0);     opacity:1;}
-  }
-  @keyframes slide-down{
-    from{transform:translateY(-50px) rotate(2deg);opacity:0;}
-    to  {transform:translateY(0)     rotate(0);   opacity:1;}
-  }
-  @keyframes correct-bounce{
-    0%  {transform:scale(1);}
-    20% {transform:scale(1.18) rotate(3deg);}
-    45% {transform:scale(0.92) rotate(-2deg);}
-    65% {transform:scale(1.07);}
-    100%{transform:scale(1);}
-  }
-  @keyframes shake-wrong{
-    0%,100%{transform:translateX(0) rotate(0);}
-    15%    {transform:translateX(-14px) rotate(-3deg);}
-    35%    {transform:translateX(14px)  rotate(3deg);}
-    55%    {transform:translateX(-8px)  rotate(-2deg);}
-    75%    {transform:translateX(8px)   rotate(2deg);}
-  }
-  @keyframes buzz-slam{
-    0%  {transform:scale(0.3) rotate(-30deg);opacity:0;}
-    55% {transform:scale(1.4) rotate(8deg);}
-    100%{transform:scale(1)   rotate(0);   opacity:1;}
-  }
-  @keyframes pulse-fat{
-    0%,100%{transform:scale(1);}
-    50%    {transform:scale(1.07) rotate(1deg);}
-  }
-  @keyframes timer-danger{
-    0%,100%{transform:scale(1) rotate(0); background:var(--yellow);}
-    50%    {transform:scale(1.2) rotate(-5deg); background:var(--coral);}
-  }
+  @keyframes bounce-in{0%{transform:scale(0) rotate(-15deg);}55%{transform:scale(1.35) rotate(6deg);}75%{transform:scale(0.9) rotate(-3deg);}90%{transform:scale(1.08) rotate(2deg);}100%{transform:scale(1) rotate(0);}}
+  @keyframes wiggle{0%,100%{transform:rotate(-6deg) scale(1.05);}50%{transform:rotate(6deg) scale(1.05);}}
+  @keyframes bob{0%,100%{transform:translateY(0) rotate(-1deg);}50%{transform:translateY(-12px) rotate(1deg);}}
+  @keyframes stamp-in{0%{transform:scale(3) rotate(20deg);opacity:0;}65%{transform:scale(0.85) rotate(-5deg);opacity:1;}82%{transform:scale(1.12) rotate(2deg);}100%{transform:scale(1) rotate(0);}}
+  @keyframes slide-up{from{transform:translateY(50px) rotate(-2deg);opacity:0;}to{transform:translateY(0) rotate(0);opacity:1;}}
+  @keyframes slide-down{from{transform:translateY(-50px) rotate(2deg);opacity:0;}to{transform:translateY(0) rotate(0);opacity:1;}}
+  @keyframes correct-bounce{0%{transform:scale(1);}20%{transform:scale(1.18) rotate(3deg);}45%{transform:scale(0.92) rotate(-2deg);}65%{transform:scale(1.07);}100%{transform:scale(1);}}
+  @keyframes shake-wrong{0%,100%{transform:translateX(0) rotate(0);}15%{transform:translateX(-14px) rotate(-3deg);}35%{transform:translateX(14px) rotate(3deg);}55%{transform:translateX(-8px) rotate(-2deg);}75%{transform:translateX(8px) rotate(2deg);}}
+  @keyframes buzz-slam{0%{transform:scale(0.3) rotate(-30deg);opacity:0;}55%{transform:scale(1.4) rotate(8deg);}100%{transform:scale(1) rotate(0);opacity:1;}}
+  @keyframes pulse-fat{0%,100%{transform:scale(1);}50%{transform:scale(1.07) rotate(1deg);}}
+  @keyframes timer-danger{0%,100%{transform:scale(1) rotate(0);background:var(--yellow);}50%{transform:scale(1.2) rotate(-5deg);background:var(--coral);}}
   @keyframes star-spin{from{transform:rotate(0);}to{transform:rotate(360deg);}}
-  @keyframes score-fly{
-    0%  {transform:translateY(0)   scale(1);  opacity:1;}
-    100%{transform:translateY(-90px) scale(2); opacity:0;}
-  }
-  @keyframes squish{
-    0%,100%{transform:scaleX(1)   scaleY(1);}
-    25%    {transform:scaleX(1.35) scaleY(0.7);}
-    75%    {transform:scaleX(0.7)  scaleY(1.35);}
-  }
-  @keyframes timer-wobble{
-    0%,100%{border-radius:50%;}
-    25%    {border-radius:58% 42% 55% 45%/45% 55% 42% 58%;}
-    50%    {border-radius:42% 58% 48% 52%/55% 45% 58% 42%;}
-    75%    {border-radius:55% 45% 42% 58%/42% 58% 55% 45%;}
-  }
-  @keyframes rainbow-spin{
-    0%  {filter:hue-rotate(0deg);}
-    100%{filter:hue-rotate(360deg);}
-  }
-  @keyframes card-float{
-    0%,100%{transform:translateY(0) rotate(-1.5deg);}
-    50%    {transform:translateY(-10px) rotate(1.5deg);}
-  }
-  @keyframes card-float-r{
-    0%,100%{transform:translateY(0) rotate(1.5deg);}
-    50%    {transform:translateY(-10px) rotate(-1.5deg);}
-  }
-  @keyframes pop-in-rotate{
-    0%  {transform:scale(0) rotate(180deg);opacity:0;}
-    70% {transform:scale(1.2) rotate(-10deg);}
-    100%{transform:scale(1) rotate(0);opacity:1;}
-  }
-  @keyframes flash-border{
-    0%,100%{border-color:var(--ink);}
-    25%    {border-color:var(--coral);}
-    50%    {border-color:var(--yellow);}
-    75%    {border-color:var(--mint);}
-  }
+  @keyframes score-fly{0%{transform:translateY(0) scale(1);opacity:1;}100%{transform:translateY(-90px) scale(2);opacity:0;}}
+  @keyframes squish{0%,100%{transform:scaleX(1) scaleY(1);}25%{transform:scaleX(1.35) scaleY(0.7);}75%{transform:scaleX(0.7) scaleY(1.35);}}
+  @keyframes timer-wobble{0%,100%{border-radius:50%;}25%{border-radius:58% 42% 55% 45%/45% 55% 42% 58%;}50%{border-radius:42% 58% 48% 52%/55% 45% 58% 42%;}75%{border-radius:55% 45% 42% 58%/42% 58% 55% 45%;}}
+  @keyframes card-float{0%,100%{transform:translateY(0) rotate(-1.5deg);}50%{transform:translateY(-10px) rotate(1.5deg);}}
+  @keyframes card-float-r{0%,100%{transform:translateY(0) rotate(1.5deg);}50%{transform:translateY(-10px) rotate(-1.5deg);}}
 
   .screen{display:none;width:100%;min-height:100vh;}
   .screen.active{display:flex;flex-direction:column;}
 
-  /* FAT CARTOON BUTTONS */
-  .btn{
-    font-family:'Fredoka One',cursive;
-    border:5px solid var(--ink);
-    border-radius:18px;
-    padding:14px 30px;
-    font-size:1.25rem;
-    cursor:pointer;
-    letter-spacing:1px;
-    transition:transform .1s,box-shadow .1s;
-    box-shadow:var(--shadow-lg);
-    display:inline-block;
-    filter:url(#wobble);
-    position:relative;
-  }
+  .btn{font-family:'Fredoka One',cursive;border:5px solid var(--ink);border-radius:18px;padding:14px 30px;font-size:1.25rem;cursor:pointer;letter-spacing:1px;transition:transform .1s,box-shadow .1s;box-shadow:var(--shadow-lg);display:inline-block;filter:url(#wobble);position:relative;}
   .btn:hover{transform:translate(-3px,-3px) rotate(-1deg);box-shadow:12px 12px 0 var(--ink);}
   .btn:active{transform:translate(5px,5px) rotate(1deg);box-shadow:2px 2px 0 var(--ink);}
   .btn-yellow{background:var(--yellow);color:var(--ink);}
@@ -199,248 +64,90 @@
   .btn-green{background:var(--green);color:white;}
   .btn-ghost{background:var(--cream);color:var(--ink);}
 
-  /* ── MODE SELECT ── */
+  /* MODE SELECT */
   #mode-screen{align-items:center;justify-content:center;padding:30px 20px;position:relative;}
   .mode-container{z-index:10;text-align:center;max-width:700px;width:100%;}
-
-  .logo-blob{
-    background: var(--yellow);
-    border:7px solid var(--ink);
-    /* Spiky sunburst shape via clip-path */
-    border-radius:52% 48% 55% 45%/45% 55% 48% 52%;
-    display:inline-block;
-    padding:32px 56px 28px;
-    box-shadow:10px 10px 0 var(--ink);
-    animation:bob 2.8s ease-in-out infinite;
-    margin-bottom:34px;
-    position:relative;
-    filter:url(#wobble-big);
-  }
+  .logo-blob{background:var(--yellow);border:7px solid var(--ink);border-radius:52% 48% 55% 45%/45% 55% 48% 52%;display:inline-block;padding:32px 56px 28px;box-shadow:10px 10px 0 var(--ink);animation:bob 2.8s ease-in-out infinite;margin-bottom:34px;position:relative;filter:url(#wobble-big);}
   .logo-blob::after{content:'⚡';position:absolute;top:-26px;right:-22px;font-size:2.5rem;animation:wiggle .85s ease-in-out infinite;filter:none;}
   .logo-blob::before{content:'⭐';position:absolute;bottom:-22px;left:-18px;font-size:2.2rem;animation:wiggle 1.1s ease-in-out infinite reverse;filter:none;}
-
-  /* Extra decorative bursts */
   .logo-blob .burst1{position:absolute;top:-22px;left:30%;font-size:1.6rem;animation:star-spin 3s linear infinite;}
   .logo-blob .burst2{position:absolute;bottom:-18px;right:25%;font-size:1.4rem;animation:star-spin 2s linear infinite reverse;}
-
-  .logo-title{
-    font-family:'Lilita One',cursive;
-    font-size:clamp(3.5rem,10vw,7rem);
-    color:var(--ink);
-    line-height:.9;
-    /* Thick multi-layer text shadow for comic look */
-    text-shadow:
-      3px 3px 0 var(--coral),
-      6px 6px 0 rgba(0,0,0,0.15);
-    letter-spacing:-1px;
-  }
-  .logo-subtitle{
-    font-family:'Fredoka One',cursive;
-    font-size:1.3rem;
-    color:var(--coral);
-    margin-top:10px;
-    letter-spacing:3px;
-    text-shadow:2px 2px 0 rgba(0,0,0,0.12);
-  }
+  .logo-title{font-family:'Lilita One',cursive;font-size:clamp(3.5rem,10vw,7rem);color:var(--ink);line-height:.9;text-shadow:3px 3px 0 var(--coral),6px 6px 0 rgba(0,0,0,0.15);letter-spacing:-1px;}
+  .logo-subtitle{font-family:'Fredoka One',cursive;font-size:1.3rem;color:var(--coral);margin-top:10px;letter-spacing:3px;}
   .mode-cards{display:flex;gap:28px;flex-wrap:wrap;justify-content:center;margin-top:38px;}
-  .mode-card{
-    background:var(--paper);
-    border:5px solid var(--ink);
-    border-radius:28px;
-    padding:38px 46px;
-    cursor:pointer;
-    box-shadow:var(--shadow-xl);
-    transition:transform .15s,box-shadow .15s;
-    width:268px;
-    filter:url(#wobble);
-  }
-  .mode-card:nth-child(1){animation:card-float  3.2s ease-in-out infinite;}
+  .mode-card{background:var(--paper);border:5px solid var(--ink);border-radius:28px;padding:38px 46px;cursor:pointer;box-shadow:var(--shadow-xl);transition:transform .15s,box-shadow .15s;width:268px;filter:url(#wobble);}
+  .mode-card:nth-child(1){animation:card-float 3.2s ease-in-out infinite;}
   .mode-card:nth-child(2){animation:card-float-r 3.2s ease-in-out infinite;}
-  .mode-card:hover{transform:translate(-5px,-5px) rotate(-1deg);box-shadow:14px 14px 0 var(--ink);filter:url(#wobble-big);}
+  .mode-card:hover{transform:translate(-5px,-5px) rotate(-1deg);box-shadow:14px 14px 0 var(--ink);}
   .mode-card:active{transform:translate(4px,4px);box-shadow:3px 3px 0 var(--ink);}
   .mode-icon{font-size:5rem;display:block;margin-bottom:16px;animation:bob 2.5s ease-in-out infinite;filter:none;}
   .mode-card:last-child .mode-icon{animation-delay:.5s;}
-  .mode-name{font-family:'Fredoka One',cursive;font-size:1.9rem;color:var(--ink);margin-bottom:10px;text-shadow:2px 2px 0 rgba(0,0,0,0.08);}
+  .mode-name{font-family:'Fredoka One',cursive;font-size:1.9rem;color:var(--ink);margin-bottom:10px;}
   .mode-desc{font-size:.92rem;color:#444;line-height:1.6;font-weight:800;}
 
-  /* ── HOST LOBBY ── */
+  /* HOST LOBBY */
   #host-lobby{background:var(--sky);padding:16px;position:relative;}
-  .host-header{
-    display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;
-    margin-bottom:20px;position:relative;z-index:10;
-    background:var(--yellow);
-    border:5px solid var(--ink);border-radius:22px;
-    padding:14px 20px;box-shadow:var(--shadow-lg);
-    filter:url(#wobble);
-  }
+  .host-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px;position:relative;z-index:10;background:var(--yellow);border:5px solid var(--ink);border-radius:22px;padding:14px 20px;box-shadow:var(--shadow-lg);filter:url(#wobble);}
   .host-logo{font-family:'Lilita One',cursive;font-size:1.7rem;color:var(--ink);text-shadow:3px 3px 0 var(--coral);}
-  .room-badge{
-    background:var(--coral);border:5px solid var(--ink);border-radius:18px;
-    padding:10px 22px;text-align:center;
-    box-shadow:5px 5px 0 var(--ink);
-    animation:pulse-fat 1.8s ease-in-out infinite;
-    filter:url(#wobble);
-  }
+  .room-badge{background:var(--coral);border:5px solid var(--ink);border-radius:18px;padding:10px 22px;text-align:center;box-shadow:5px 5px 0 var(--ink);animation:pulse-fat 1.8s ease-in-out infinite;filter:url(#wobble);}
   .room-label{font-family:'Fredoka One',cursive;font-size:.75rem;letter-spacing:2px;color:rgba(255,255,255,.9);text-transform:uppercase;}
   .room-code{font-family:'Lilita One',cursive;font-size:2.6rem;color:white;letter-spacing:7px;text-shadow:3px 3px 0 var(--ink);}
   .lobby-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;z-index:10;position:relative;max-width:1100px;margin:0 auto;}
-  .lobby-panel{
-    background:var(--paper);border:5px solid var(--ink);border-radius:22px;
-    padding:22px;box-shadow:var(--shadow-lg);
-    filter:url(#wobble);
-  }
-  .panel-heading{
-    font-family:'Fredoka One',cursive;font-size:1.35rem;color:var(--ink);margin-bottom:16px;
-    background:var(--mint);border:4px solid var(--ink);border-radius:30px;
-    padding:6px 20px;display:inline-flex;align-items:center;gap:8px;
-    box-shadow:4px 4px 0 var(--ink);
-  }
+  .lobby-panel{background:var(--paper);border:5px solid var(--ink);border-radius:22px;padding:22px;box-shadow:var(--shadow-lg);filter:url(#wobble);}
+  .panel-heading{font-family:'Fredoka One',cursive;font-size:1.35rem;color:var(--ink);margin-bottom:16px;background:var(--mint);border:4px solid var(--ink);border-radius:30px;padding:6px 20px;display:inline-flex;align-items:center;gap:8px;box-shadow:4px 4px 0 var(--ink);}
   .players-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:14px;}
-  .player-chip{
-    background:var(--yellow);border:4px solid var(--ink);border-radius:18px;
-    padding:14px 10px;text-align:center;
-    box-shadow:4px 4px 0 var(--ink);
-    animation:bounce-in .45s cubic-bezier(.34,1.56,.64,1);
-    filter:url(#wobble);
-  }
+  .player-chip{background:var(--yellow);border:4px solid var(--ink);border-radius:18px;padding:14px 10px;text-align:center;box-shadow:4px 4px 0 var(--ink);animation:bounce-in .45s cubic-bezier(.34,1.56,.64,1);filter:url(#wobble);}
   .player-chip.ready{background:var(--green);color:white;}
   .player-avatar{font-size:2.4rem;margin-bottom:7px;display:block;animation:bob 2s ease-in-out infinite;}
   .player-name{font-family:'Fredoka One',cursive;font-size:.95rem;word-break:break-word;}
   .player-status{font-size:.75rem;margin-top:4px;font-weight:900;}
-  .join-url-box{
-    background:var(--mint);border:4px solid var(--ink);border-radius:16px;
-    padding:16px;text-align:center;box-shadow:4px 4px 0 var(--ink);margin-top:16px;
-    filter:url(#wobble);
-  }
+  .join-url-box{background:var(--mint);border:4px solid var(--ink);border-radius:16px;padding:16px;text-align:center;box-shadow:4px 4px 0 var(--ink);margin-top:16px;filter:url(#wobble);}
   .join-url{font-family:'Fredoka One',cursive;font-size:.95rem;color:var(--ink);}
   .settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
   .setting-item label{font-family:'Fredoka One',cursive;font-size:.85rem;color:var(--ink);display:block;margin-bottom:6px;}
-  .setting-item select{
-    width:100%;background:var(--cream);color:var(--ink);
-    border:4px solid var(--ink);border-radius:12px;padding:9px 12px;
-    font-family:'Nunito',sans-serif;font-weight:800;font-size:.9rem;
-    box-shadow:3px 3px 0 var(--ink);appearance:none;cursor:pointer;
-  }
+  .setting-item select{width:100%;background:var(--cream);color:var(--ink);border:4px solid var(--ink);border-radius:12px;padding:9px 12px;font-family:'Nunito',sans-serif;font-weight:800;font-size:.9rem;box-shadow:3px 3px 0 var(--ink);appearance:none;cursor:pointer;}
   .setting-item select:focus{outline:none;border-color:var(--coral);}
 
-  /* ── HOST GAME ── */
+  /* HOST GAME */
   #host-game{background:var(--sky);flex-direction:column;position:relative;}
-  .game-header{
-    display:flex;align-items:center;justify-content:space-between;
-    padding:10px 20px;
-    background:var(--purple);border-bottom:5px solid var(--ink);
-    flex-shrink:0;position:relative;z-index:10;flex-wrap:wrap;gap:8px;
-  }
-  .round-indicator{
-    font-family:'Fredoka One',cursive;font-size:1rem;color:white;
-    background:rgba(0,0,0,.25);border:3px solid rgba(255,255,255,.5);
-    border-radius:20px;padding:5px 14px;
-    filter:url(#wobble);
-  }
+  .game-header{display:flex;align-items:center;justify-content:space-between;padding:10px 20px;background:var(--purple);border-bottom:5px solid var(--ink);flex-shrink:0;position:relative;z-index:10;flex-wrap:wrap;gap:8px;}
+  .round-indicator{font-family:'Fredoka One',cursive;font-size:1rem;color:white;background:rgba(0,0,0,.25);border:3px solid rgba(255,255,255,.5);border-radius:20px;padding:5px 14px;filter:url(#wobble);}
   .round-indicator span{color:var(--yellow);font-size:1.25rem;}
-  .category-badge{
-    font-family:'Fredoka One',cursive;font-size:1.4rem;
-    border:5px solid var(--ink);border-radius:30px;padding:6px 22px;
-    box-shadow:5px 5px 0 var(--ink);letter-spacing:1px;
-    filter:url(#wobble);
-  }
-  /* Wobbly timer */
-  .timer-blob{
-    width:76px;height:76px;
-    background:var(--yellow);border:5px solid var(--ink);
-    border-radius:50%;
-    display:flex;align-items:center;justify-content:center;
-    box-shadow:5px 5px 0 var(--ink);flex-shrink:0;position:relative;
-    animation:timer-wobble 2s ease-in-out infinite;
-  }
+  .category-badge{font-family:'Fredoka One',cursive;font-size:1.4rem;border:5px solid var(--ink);border-radius:30px;padding:6px 22px;box-shadow:5px 5px 0 var(--ink);letter-spacing:1px;filter:url(#wobble);}
+  .timer-blob{width:76px;height:76px;background:var(--yellow);border:5px solid var(--ink);border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:5px 5px 0 var(--ink);flex-shrink:0;position:relative;animation:timer-wobble 2s ease-in-out infinite;}
   .timer-blob.danger{animation:timer-danger .45s ease-in-out infinite;}
   .timer-number{font-family:'Lilita One',cursive;font-size:1.9rem;color:var(--ink);line-height:1;position:relative;z-index:2;}
   .timer-ring-svg{position:absolute;inset:5px;transform:rotate(-90deg);}
   .timer-track{fill:none;stroke:rgba(0,0,0,.18);stroke-width:6;}
   .timer-fill{fill:none;stroke-width:6;stroke-linecap:round;transition:stroke-dashoffset 1s linear,stroke .5s;}
   .question-zone{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px 30px;position:relative;z-index:5;}
-
-  /* Big speech-bubble question box */
-  .question-blob{
-    background:white;
-    border:6px solid var(--ink);
-    border-radius:32px;
-    padding:28px 38px;
-    max-width:900px;width:100%;
-    box-shadow:var(--shadow-xl);
-    margin-bottom:28px;
-    position:relative;
-    animation:slide-down .45s cubic-bezier(.34,1.56,.64,1);
-    filter:url(#wobble-big);
-  }
-  /* Speech bubble pointer */
+  .question-blob{background:white;border:6px solid var(--ink);border-radius:32px;padding:28px 38px;max-width:900px;width:100%;box-shadow:var(--shadow-xl);margin-bottom:28px;position:relative;animation:slide-down .45s cubic-bezier(.34,1.56,.64,1);filter:url(#wobble-big);}
   .question-blob::before{content:'';position:absolute;bottom:-34px;left:90px;width:0;height:0;border-left:22px solid transparent;border-right:22px solid transparent;border-top:34px solid var(--ink);}
   .question-blob::after{content:'';position:absolute;bottom:-26px;left:94px;width:0;height:0;border-left:18px solid transparent;border-right:18px solid transparent;border-top:26px solid white;}
-
-  .question-value-badge{
-    font-family:'Fredoka One',cursive;font-size:1.05rem;color:var(--ink);
-    background:var(--yellow);border:4px solid var(--ink);border-radius:20px;
-    padding:4px 18px;box-shadow:4px 4px 0 var(--ink);
-    display:inline-block;margin-bottom:14px;
-    animation:wiggle 2s ease-in-out infinite;
-  }
-  .question-text{
-    font-family:'Nunito',sans-serif;font-weight:900;
-    font-size:clamp(1.4rem,3vw,2.1rem);text-align:center;line-height:1.3;color:var(--ink);
-  }
+  .question-value-badge{font-family:'Fredoka One',cursive;font-size:1.05rem;color:var(--ink);background:var(--yellow);border:4px solid var(--ink);border-radius:20px;padding:4px 18px;box-shadow:4px 4px 0 var(--ink);display:inline-block;margin-bottom:14px;animation:wiggle 2s ease-in-out infinite;}
+  .question-text{font-family:'Nunito',sans-serif;font-weight:900;font-size:clamp(1.4rem,3vw,2.1rem);text-align:center;line-height:1.3;color:var(--ink);}
   .question-text.movie-line{font-style:italic;color:var(--purple);}
   .question-text.movie-line::before{content:'🎬 ';}
-
   .answers-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;width:100%;max-width:900px;}
-  .answer-option{
-    background:var(--cream);border:5px solid var(--ink);border-radius:20px;
-    padding:16px 22px;display:flex;align-items:center;gap:16px;
-    font-weight:900;font-size:1.05rem;
-    box-shadow:var(--shadow);
-    animation:slide-up .4s cubic-bezier(.34,1.56,.64,1) both;
-    transition:transform .2s,box-shadow .2s;
-    filter:url(#wobble);
-  }
+  .answer-option{background:var(--cream);border:5px solid var(--ink);border-radius:20px;padding:16px 22px;display:flex;align-items:center;gap:16px;font-weight:900;font-size:1.05rem;box-shadow:var(--shadow);animation:slide-up .4s cubic-bezier(.34,1.56,.64,1) both;transition:transform .2s,box-shadow .2s;filter:url(#wobble);}
   .answer-option:nth-child(1){animation-delay:.05s;}.answer-option:nth-child(2){animation-delay:.1s;}
   .answer-option:nth-child(3){animation-delay:.15s;}.answer-option:nth-child(4){animation-delay:.2s;}
-  .answer-option.correct{
-    background:var(--green);border-color:var(--ink);color:white;
-    animation:correct-bounce .55s ease;box-shadow:6px 6px 0 var(--ink);
-  }
+  .answer-option.correct{background:var(--green);border-color:var(--ink);color:white;animation:correct-bounce .55s ease;box-shadow:6px 6px 0 var(--ink);}
   .answer-option.wrong{background:#ccc;border-color:#888;color:#888;box-shadow:none;transform:none!important;}
-  .answer-letter{
-    font-family:'Fredoka One',cursive;font-size:1.4rem;
-    width:42px;height:42px;border-radius:50%;
-    display:flex;align-items:center;justify-content:center;flex-shrink:0;
-    border:4px solid var(--ink);box-shadow:3px 3px 0 var(--ink);
-  }
+  .answer-letter{font-family:'Fredoka One',cursive;font-size:1.4rem;width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:4px solid var(--ink);box-shadow:3px 3px 0 var(--ink);}
   .answer-option:nth-child(1) .answer-letter{background:var(--coral);color:white;}
   .answer-option:nth-child(2) .answer-letter{background:var(--blue);color:white;}
   .answer-option:nth-child(3) .answer-letter{background:var(--orange);color:white;}
   .answer-option:nth-child(4) .answer-letter{background:var(--purple);color:white;}
   .answer-option.correct .answer-letter{background:white;color:var(--green);}
   #g-host-controls{display:flex;gap:14px;margin-top:26px;z-index:10;}
-
   .buzz-queue{position:fixed;right:16px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:10px;z-index:20;width:158px;}
-  .buzzer-card{
-    background:var(--paper);border:4px solid var(--ink);border-radius:16px;
-    padding:10px 12px;display:flex;align-items:center;gap:8px;
-    box-shadow:4px 4px 0 var(--ink);
-    animation:bounce-in .3s cubic-bezier(.34,1.56,.64,1);
-    filter:url(#wobble);
-  }
+  .buzzer-card{background:var(--paper);border:4px solid var(--ink);border-radius:16px;padding:10px 12px;display:flex;align-items:center;gap:8px;box-shadow:4px 4px 0 var(--ink);animation:bounce-in .3s cubic-bezier(.34,1.56,.64,1);filter:url(#wobble);}
   .buzzer-card.first{background:var(--yellow);animation:bounce-in .3s cubic-bezier(.34,1.56,.64,1),pulse-fat 1s ease infinite;}
   .buzzer-position{font-family:'Fredoka One',cursive;font-size:1rem;color:var(--ink);width:18px;}
   .buzzer-name{font-size:.82rem;font-weight:800;flex:1;}
-
   .scoreboard-strip{display:flex;gap:12px;padding:10px 20px;background:var(--ink);overflow-x:auto;flex-shrink:0;}
-  .score-chip{
-    background:var(--paper);border:4px solid var(--ink);border-radius:14px;
-    padding:7px 13px;display:flex;align-items:center;gap:9px;
-    flex-shrink:0;min-width:118px;
-    box-shadow:3px 3px 0 rgba(255,255,255,.25);transition:transform .3s;
-    filter:url(#wobble);
-  }
+  .score-chip{background:var(--paper);border:4px solid var(--ink);border-radius:14px;padding:7px 13px;display:flex;align-items:center;gap:9px;flex-shrink:0;min-width:118px;box-shadow:3px 3px 0 rgba(255,255,255,.25);transition:transform .3s;filter:url(#wobble);}
   .score-chip.leading{background:var(--yellow);animation:pulse-fat 1.4s ease infinite;}
   .score-avatar-sm{font-size:1.5rem;}
   .score-info{flex:1;min-width:0;}
@@ -448,7 +155,7 @@
   .score-points{font-family:'Fredoka One',cursive;font-size:1.25rem;color:var(--coral);}
   .score-delta{position:fixed;font-family:'Fredoka One',cursive;font-size:1.7rem;color:var(--green);pointer-events:none;animation:score-fly .9s ease-out forwards;text-shadow:3px 3px 0 var(--ink);z-index:999;}
 
-  /* ── OVERLAYS ── */
+  /* OVERLAYS */
   .buzz-overlay{position:fixed;inset:0;z-index:100;background:rgba(13,13,26,.9);display:none;align-items:center;justify-content:center;flex-direction:column;gap:16px;}
   .buzz-overlay.show{display:flex;}
   .buzz-splash{background:var(--yellow);border:7px solid var(--ink);border-radius:34px;padding:32px 56px;text-align:center;box-shadow:12px 12px 0 var(--ink);animation:buzz-slam .45s cubic-bezier(.34,1.56,.64,1);position:relative;filter:url(#wobble-big);}
@@ -457,17 +164,16 @@
   .buzz-label{font-family:'Fredoka One',cursive;font-size:1.1rem;letter-spacing:4px;color:var(--coral);margin-bottom:8px;}
   .buzz-player-name{font-family:'Lilita One',cursive;font-size:clamp(2.8rem,7vw,5.5rem);color:var(--ink);line-height:1;text-shadow:4px 4px 0 var(--coral);}
   .buzz-overlay-sub{font-family:'Fredoka One',cursive;font-size:1.3rem;color:var(--ink);margin-top:10px;}
-
-  .round-transition{position:fixed;inset:0;z-index:200;background:var(--yellow);display:none;align-items:center;justify-content:center;flex-direction:column;gap:14px;background-image:repeating-conic-gradient(rgba(0,0,0,0.04) 0deg 5deg,transparent 5deg 15deg),radial-gradient(ellipse at 50% 50%,rgba(255,255,255,.5) 0%,transparent 70%);}
+  .round-transition{position:fixed;inset:0;z-index:200;background:var(--yellow);display:none;align-items:center;justify-content:center;flex-direction:column;gap:14px;background-image:repeating-conic-gradient(rgba(0,0,0,0.04) 0deg 5deg,transparent 5deg 15deg);}
   .round-transition.show{display:flex;}
   .round-big{font-family:'Lilita One',cursive;font-size:clamp(7rem,20vw,16rem);color:var(--ink);line-height:.85;text-shadow:8px 8px 0 var(--coral),14px 14px 0 rgba(0,0,0,.1);animation:stamp-in .55s cubic-bezier(.34,1.56,.64,1);position:relative;z-index:1;filter:url(#wobble-big);}
-  .round-label-top{font-family:'Fredoka One',cursive;font-size:clamp(1rem,3.5vw,2rem);letter-spacing:8px;color:var(--coral);animation:slide-up .4s .2s both;position:relative;z-index:1;text-shadow:2px 2px 0 rgba(0,0,0,.1);}
+  .round-label-top{font-family:'Fredoka One',cursive;font-size:clamp(1rem,3.5vw,2rem);letter-spacing:8px;color:var(--coral);animation:slide-up .4s .2s both;position:relative;z-index:1;}
   .round-name-big{font-family:'Fredoka One',cursive;font-size:clamp(1.5rem,4vw,2.8rem);color:#222;animation:slide-up .4s .3s both;position:relative;z-index:1;background:white;border:5px solid var(--ink);border-radius:22px;padding:10px 32px;box-shadow:6px 6px 0 var(--ink);filter:url(#wobble);}
   .round-difficulty{display:flex;gap:6px;margin-top:10px;animation:slide-up .4s .4s both;position:relative;z-index:1;}
   .difficulty-star{font-size:2.4rem;animation:bob 1s ease-in-out infinite;}
   .difficulty-star:nth-child(2){animation-delay:.15s;}.difficulty-star:nth-child(3){animation-delay:.3s;}.difficulty-star:nth-child(4){animation-delay:.45s;}
 
-  /* ── FINAL ── */
+  /* FINAL */
   #final-screen{align-items:center;justify-content:center;background:var(--sky);padding:30px 20px;position:relative;}
   .final-container{max-width:700px;width:100%;z-index:10;text-align:center;}
   .final-title{font-family:'Lilita One',cursive;font-size:clamp(3.5rem,10vw,6rem);color:var(--ink);text-shadow:6px 6px 0 var(--yellow),10px 10px 0 rgba(0,0,0,.1);margin-bottom:8px;animation:stamp-in .55s cubic-bezier(.34,1.56,.64,1);}
@@ -482,10 +188,10 @@
   .lb-name{flex:1;font-weight:900;font-size:1.1rem;text-align:left;}
   .lb-score{font-family:'Fredoka One',cursive;font-size:1.9rem;color:var(--coral);}
 
-  /* ── PHONE JOIN ── */
+  /* PHONE JOIN */
   #phone-join{min-height:100vh;background:linear-gradient(160deg,var(--sky),var(--sky2),#C8F8E0);align-items:center;justify-content:center;padding:30px 20px;flex-direction:column;}
   .phone-logo{font-family:'Lilita One',cursive;font-size:3.5rem;color:var(--ink);text-shadow:4px 4px 0 var(--coral);text-align:center;animation:bob 2.5s ease-in-out infinite;margin-bottom:4px;}
-  .phone-tagline{font-family:'Fredoka One',cursive;letter-spacing:3px;color:var(--coral);font-size:.95rem;margin-bottom:28px;text-align:center;text-shadow:1px 1px 0 rgba(0,0,0,.08);}
+  .phone-tagline{font-family:'Fredoka One',cursive;letter-spacing:3px;color:var(--coral);font-size:.95rem;margin-bottom:28px;text-align:center;}
   .phone-card{background:var(--paper);border:5px solid var(--ink);border-radius:30px;padding:28px 24px;width:100%;max-width:350px;box-shadow:var(--shadow-xl);animation:bounce-in .5s cubic-bezier(.34,1.56,.64,1);filter:url(#wobble);}
   .phone-field-label{font-family:'Fredoka One',cursive;font-size:1rem;color:var(--ink);display:block;margin-bottom:8px;}
   .phone-input{width:100%;background:var(--cream);color:var(--ink);border:4px solid var(--ink);border-radius:16px;padding:12px 16px;font-family:'Nunito',sans-serif;font-weight:800;font-size:1rem;margin-bottom:16px;box-shadow:4px 4px 0 var(--ink);transition:border-color .2s;}
@@ -496,7 +202,7 @@
   .avatar-btn:hover{transform:translate(-2px,-2px) rotate(-5deg);box-shadow:5px 5px 0 var(--ink);}
   .avatar-btn.selected{background:var(--yellow);transform:scale(1.25) rotate(8deg);box-shadow:4px 4px 0 var(--ink);}
 
-  /* ── PHONE WAITING ── */
+  /* PHONE WAITING */
   #phone-waiting{min-height:100vh;background:linear-gradient(160deg,var(--sky),#C8F8E0);align-items:center;justify-content:center;padding:30px 20px;flex-direction:column;gap:18px;}
   .waiting-avatar-big{font-size:6rem;text-align:center;animation:bob 2s ease-in-out infinite;}
   .waiting-name{font-family:'Fredoka One',cursive;font-size:2.4rem;color:var(--ink);background:var(--yellow);border:5px solid var(--ink);border-radius:22px;padding:6px 26px;box-shadow:var(--shadow-lg);text-align:center;filter:url(#wobble);}
@@ -512,39 +218,27 @@
   .player-row-avatar{font-size:1.5rem;}
   .player-row-name{font-size:.9rem;font-weight:800;}
 
-  /* ── PHONE BUZZ ── */
+  /* PHONE BUZZ */
   #phone-buzz{min-height:100vh;background:linear-gradient(160deg,var(--sky) 0%,#C8F8E0 100%);flex-direction:column;}
   .phone-top-bar{background:var(--purple);border-bottom:5px solid var(--ink);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
   .phone-player-info{display:flex;align-items:center;gap:10px;}
   .phone-avatar-sm{font-size:1.7rem;}
   .phone-player-name-sm{font-family:'Fredoka One',cursive;font-size:1.15rem;color:var(--yellow);text-shadow:2px 2px 0 rgba(0,0,0,.4);}
-  .phone-score-sm{font-family:'Fredoka One',cursive;font-size:1.5rem;color:var(--yellow);background:rgba(0,0,0,.25);border:3px solid rgba(255,255,255,.4);border-radius:20px;padding:3px 12px;text-shadow:2px 2px 0 rgba(0,0,0,.3);}
+  .phone-score-sm{font-family:'Fredoka One',cursive;font-size:1.5rem;color:var(--yellow);background:rgba(0,0,0,.25);border:3px solid rgba(255,255,255,.4);border-radius:20px;padding:3px 12px;}
   .phone-cat-bar{padding:7px 14px;display:flex;align-items:center;justify-content:space-between;background:var(--ink);flex-shrink:0;}
   .phone-cat-bar .category-badge{font-size:.85rem;padding:4px 12px;}
   .pb-label{font-family:'Fredoka One',cursive;font-size:.8rem;color:rgba(255,255,255,.65);letter-spacing:2px;}
   .pb-label span{color:var(--yellow);}
   .phone-question-mini{padding:16px 18px;text-align:center;font-weight:800;font-size:.95rem;color:var(--ink);line-height:1.5;flex-shrink:0;min-height:72px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.6);border-bottom:4px solid rgba(0,0,0,.12);}
   .buzz-zone{flex:1;display:flex;align-items:center;justify-content:center;padding:16px;flex-direction:column;gap:12px;}
-
-  /* THE BIG BUZZ BUTTON — even fatter */
-  .buzz-btn{
-    width:220px;height:220px;border-radius:50%;border:7px solid var(--ink);cursor:pointer;
-    font-family:'Fredoka One',cursive;font-size:2rem;color:white;line-height:1.1;text-align:center;
-    letter-spacing:1px;position:relative;transition:transform .1s,box-shadow .1s;
-    -webkit-tap-highlight-color:transparent;
-    display:flex;align-items:center;justify-content:center;flex-direction:column;
-    background:radial-gradient(circle at 38% 32%,#FF9090,var(--coral) 65%);
-    box-shadow:0 10px 0 #AA0000,0 13px 0 var(--ink),inset 0 4px 10px rgba(255,255,255,.35);
-    animation:timer-wobble 4s ease-in-out infinite;
-  }
+  .buzz-btn{width:220px;height:220px;border-radius:50%;border:7px solid var(--ink);cursor:pointer;font-family:'Fredoka One',cursive;font-size:2rem;color:white;line-height:1.1;text-align:center;letter-spacing:1px;position:relative;transition:transform .1s,box-shadow .1s;-webkit-tap-highlight-color:transparent;display:flex;align-items:center;justify-content:center;flex-direction:column;background:radial-gradient(circle at 38% 32%,#FF9090,var(--coral) 65%);box-shadow:0 10px 0 #AA0000,0 13px 0 var(--ink),inset 0 4px 10px rgba(255,255,255,.35);animation:timer-wobble 4s ease-in-out infinite;}
   .buzz-btn::after{content:'';position:absolute;top:14%;left:20%;width:36%;height:18%;background:rgba(255,255,255,.35);border-radius:50%;transform:rotate(-25deg);}
   .buzz-btn:active{transform:scale(.91) translateY(9px);box-shadow:0 2px 0 #AA0000,0 5px 0 var(--ink),inset 0 4px 10px rgba(0,0,0,.25);animation:none;}
   .buzz-btn.locked{background:radial-gradient(circle at 38% 35%,#aaa,#666);box-shadow:0 8px 0 #333,0 11px 0 var(--ink);cursor:not-allowed;animation:none;}
   .buzz-btn.buzzed-in{background:radial-gradient(circle at 38% 35%,#80FF9A,var(--green));box-shadow:0 10px 0 #008822,0 13px 0 var(--ink),inset 0 4px 10px rgba(255,255,255,.35);animation:bounce-in .35s cubic-bezier(.34,1.56,.64,1);}
-
   .answer-buttons{display:none;flex-direction:column;gap:11px;width:100%;padding:14px 16px;}
   .answer-buttons.show{display:flex;}
-  .phone-answer-btn{font-family:'Fredoka One',cursive;font-size:1.1rem;border:5px solid var(--ink);border-radius:20px;padding:15px 18px;background:var(--paper);color:var(--ink);cursor:pointer;box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:13px;transition:transform .1s,box-shadow .1s;-webkit-tap-highlight-color:transparent;text-align:left;letter-spacing:.5px;filter:url(#wobble);}
+  .phone-answer-btn{font-family:'Fredoka One',cursive;font-size:1.1rem;border:5px solid var(--ink);border-radius:20px;padding:15px 18px;background:var(--paper);color:var(--ink);cursor:pointer;box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:13px;transition:transform .1s,box-shadow .1s;-webkit-tap-highlight-color:transparent;text-align:left;filter:url(#wobble);}
   .phone-answer-btn:active{transform:translate(4px,4px);box-shadow:2px 2px 0 var(--ink);}
   .phone-answer-btn.correct-answer{background:var(--green);color:white;border-color:var(--ink);}
   .phone-answer-btn.wrong-answer{background:#ccc;color:#888;border-color:#aaa;box-shadow:none;animation:shake-wrong .45s ease;}
@@ -557,27 +251,28 @@
   .rank-name{font-size:.65rem;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:64px;color:var(--ink);}
   .rank-pts{font-family:'Fredoka One',cursive;font-size:.95rem;color:var(--coral);}
 
-  /* ── PHONE FINAL ── */
+  /* PHONE FINAL */
   #phone-final{min-height:100vh;background:linear-gradient(160deg,var(--yellow) 0%,#FFD080 100%);align-items:center;justify-content:center;flex-direction:column;padding:30px 20px;gap:14px;}
   .phone-final-place{font-family:'Lilita One',cursive;font-size:8rem;text-align:center;animation:stamp-in .55s cubic-bezier(.34,1.56,.64,1);line-height:1;}
   .phone-final-label{font-family:'Fredoka One',cursive;font-size:.95rem;letter-spacing:3px;color:#555;text-align:center;text-transform:uppercase;}
   .phone-final-name{font-family:'Fredoka One',cursive;font-size:2.4rem;color:var(--ink);background:white;border:5px solid var(--ink);border-radius:22px;padding:6px 28px;box-shadow:var(--shadow-lg);text-align:center;animation:bounce-in .5s .2s both cubic-bezier(.34,1.56,.64,1);filter:url(#wobble);}
   .phone-final-score{font-family:'Lilita One',cursive;font-size:4.5rem;color:var(--coral);text-shadow:4px 4px 0 var(--ink);text-align:center;}
 
-  /* ── CATEGORY COLORS ── */
-  .cat-science      {background:#C0F0FF;border-color:var(--ink);color:var(--ink);}
-  .cat-history      {background:var(--yellow);border-color:var(--ink);color:var(--ink);}
-  .cat-geo          {background:#B0FFD8;border-color:var(--ink);color:var(--ink);}
-  .cat-arts         {background:#E8BBFF;border-color:var(--ink);color:var(--ink);}
-  .cat-sports       {background:#FFD0B0;border-color:var(--ink);color:var(--ink);}
+  .cat-science{background:#C0F0FF;border-color:var(--ink);color:var(--ink);}
+  .cat-history{background:var(--yellow);border-color:var(--ink);color:var(--ink);}
+  .cat-geo{background:#B0FFD8;border-color:var(--ink);color:var(--ink);}
+  .cat-arts{background:#E8BBFF;border-color:var(--ink);color:var(--ink);}
+  .cat-sports{background:#FFD0B0;border-color:var(--ink);color:var(--ink);}
   .cat-entertainment{background:#FFB8D8;border-color:var(--ink);color:var(--ink);}
-  .cat-movies       {background:#FFE0A0;border-color:var(--ink);color:var(--ink);}
+  .cat-movies{background:#FFE0A0;border-color:var(--ink);color:var(--ink);}
 
-  /* floating decorations */
   .deco{position:fixed;pointer-events:none;z-index:1;font-size:2.2rem;animation:bob 3s ease-in-out infinite;opacity:.5;}
-
   .hidden{display:none!important;}
   .mt-20{margin-top:20px;}
+
+  /* Connection status */
+  .conn-status{position:fixed;bottom:10px;left:50%;transform:translateX(-50%);font-family:'Fredoka One',cursive;font-size:.85rem;background:rgba(0,0,0,.7);color:white;padding:6px 16px;border-radius:20px;z-index:999;opacity:0;transition:opacity .3s;}
+  .conn-status.show{opacity:1;}
 
   @media(max-width:768px){
     .lobby-grid{grid-template-columns:1fr;}
@@ -588,19 +283,18 @@
 </head>
 <body>
 <div class="cloud-bg"></div>
-<div class="dots-bg"></div>
 <div class="deco" style="top:8%;left:4%;animation-delay:0s;">⭐</div>
 <div class="deco" style="top:15%;right:6%;animation-delay:.5s;">💫</div>
 <div class="deco" style="top:60%;left:2%;animation-delay:1s;">🌟</div>
 <div class="deco" style="bottom:10%;right:4%;animation-delay:.8s;">✨</div>
 <div class="deco" style="bottom:20%;left:5%;animation-delay:1.3s;">⚡</div>
+<div class="conn-status" id="conn-status">🔥 Connected!</div>
 
 <!-- MODE SELECT -->
 <div class="screen active" id="mode-screen">
   <div class="mode-container" style="z-index:10;">
     <div class="logo-blob">
-      <span class="burst1">💥</span>
-      <span class="burst2">🌟</span>
+      <span class="burst1">💥</span><span class="burst2">🌟</span>
       <div class="logo-title">BRAIN<br>BLAST!</div>
       <div class="logo-subtitle">Trivia for Smarty Pants</div>
     </div>
@@ -636,6 +330,7 @@
       <div class="players-grid" id="host-players-grid">
         <div style="font-family:'Fredoka One';color:#888;grid-column:1/-1;padding:20px 0;text-align:center;">Waiting for players… 👀</div>
       </div>
+      <button class="btn btn-ghost" style="margin-top:16px;font-size:1rem;padding:10px 20px;" onclick="addDemoPlayer()">+ Add Demo Player</button>
     </div>
     <div class="lobby-panel">
       <div class="panel-heading">⚙️ Settings</div>
@@ -647,8 +342,8 @@
       </div>
       <div class="join-url-box">
         <div style="font-family:'Fredoka One';font-size:.75rem;color:#666;margin-bottom:8px;letter-spacing:2px;text-transform:uppercase;">Players join at:</div>
-        <div class="join-url" id="join-url-display">Open this page → Choose "Player" 📱</div>
-        <div style="font-family:'Fredoka One';font-size:.8rem;color:#555;margin-top:6px;">Then enter the room code above ☝️</div>
+        <div class="join-url">duece44.github.io/Brain-Blast</div>
+        <div style="font-family:'Fredoka One';font-size:.8rem;color:#555;margin-top:6px;">Then enter room code above ☝️</div>
       </div>
     </div>
   </div>
@@ -664,7 +359,7 @@
     <div class="category-badge cat-science" id="g-category-badge">SCIENCE 🔬</div>
     <div style="display:flex;align-items:center;gap:12px;">
       <div class="timer-blob" id="g-timer-blob">
-        <svg class="timer-ring-svg" viewBox="0 0 60 60"><circle class="timer-track" cx="30" cy="30" r="25"/><circle class="timer-fill" id="timer-progress" cx="30" cy="30" r="25" stroke="#6BCB77" stroke-dasharray="157.08" stroke-dashoffset="0"/></svg>
+        <svg class="timer-ring-svg" viewBox="0 0 60 60"><circle class="timer-track" cx="30" cy="30" r="25"/><circle class="timer-fill" id="timer-progress" cx="30" cy="30" r="25" stroke="#22CC55" stroke-dasharray="157.08" stroke-dashoffset="0"/></svg>
         <div class="timer-number" id="g-timer">20</div>
       </div>
       <div style="text-align:center;">
@@ -763,7 +458,7 @@
   <div class="buzz-splash">
     <div class="buzz-label">FIRST BUZZ! 🔔</div>
     <div class="buzz-player-name" id="buzz-overlay-name">PLAYER</div>
-    <div class="buzz-overlay-sub" id="buzz-overlay-sub">Answer now! ⏰</div>
+    <div class="buzz-overlay-sub">Answer now! ⏰</div>
   </div>
 </div>
 <div class="round-transition" id="round-transition">
@@ -773,9 +468,40 @@
   <div class="round-difficulty" id="rt-difficulty"></div>
 </div>
 
-<script>
-const AVATARS=['🦁','🐯','🦊','🐻','🐼','🦅','🦋','🐙','🦄','🐉','🤖','👾','💀','🎭','🔥','⚡','🌙','💎','🚀','🎸'];
-const CATEGORIES={
+<!-- Firebase SDK -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getDatabase, ref, set, get, push, onValue, off, remove, onChildAdded, onChildChanged }
+  from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCYH4YqmBUuyXkEppEP1TalZGvmR0ukhZA",
+  authDomain: "italy2026-a2fe6.firebaseapp.com",
+  databaseURL: "https://italy2026-a2fe6-default-rtdb.firebaseio.com",
+  projectId: "italy2026-a2fe6",
+  storageBucket: "italy2026-a2fe6.firebasestorage.app",
+  messagingSenderId: "690110853019",
+  appId: "1:690110853019:web:ecff5f5a6c0376fe13bb3e"
+};
+
+const app = initializeApp(firebaseConfig);
+const db  = getDatabase(app);
+
+// ── helpers ──────────────────────────────────────────────
+function roomRef(code, path) { return ref(db, `rooms/${code}${path ? '/'+path : ''}`); }
+function showStatus(msg, ms=2000) {
+  const el = document.getElementById('conn-status');
+  el.textContent = msg; el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), ms);
+}
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ── GAME DATA ─────────────────────────────────────────────
+const AVATARS = ['🦁','🐯','🦊','🐻','🐼','🦅','🦋','🐙','🦄','🐉','🤖','👾','💀','🎭','🔥','⚡','🌙','💎','🚀','🎸'];
+const CATEGORIES = {
   science:{name:'SCIENCE 🔬',cssClass:'cat-science'},
   history:{name:'HISTORY 📜',cssClass:'cat-history'},
   geography:{name:'GEO 🌍',cssClass:'cat-geo'},
@@ -784,96 +510,96 @@ const CATEGORIES={
   entertainment:{name:'ENT 🎬',cssClass:'cat-entertainment'},
   movielines:{name:'MOVIES 🎥',cssClass:'cat-movies'},
 };
-const QUESTIONS={
+const QUESTIONS = {
   science:[
     {q:"What is the chemical symbol for Gold?",a:["Au","Ag","Fe","Cu"],correct:0,diff:1},
     {q:"How many bones are in the adult human body?",a:["206","186","226","196"],correct:0,diff:1},
     {q:"What planet is known as the Red Planet?",a:["Mars","Venus","Jupiter","Saturn"],correct:0,diff:1},
     {q:"What is the powerhouse of the cell?",a:["Mitochondria","Nucleus","Ribosome","Lysosome"],correct:0,diff:1},
     {q:"What gas do plants absorb from the atmosphere?",a:["Carbon dioxide","Oxygen","Nitrogen","Hydrogen"],correct:0,diff:1},
-    {q:"What is the speed of light (approx) in km/s?",a:["300,000","150,000","500,000","250,000"],correct:0,diff:2},
+    {q:"Speed of light (approx) in km/s?",a:["300,000","150,000","500,000","250,000"],correct:0,diff:2},
     {q:"Most abundant gas in Earth's atmosphere?",a:["Nitrogen","Oxygen","Carbon dioxide","Argon"],correct:0,diff:2},
     {q:"What is the atomic number of Carbon?",a:["6","8","12","4"],correct:0,diff:2},
     {q:"Which organ produces insulin?",a:["Pancreas","Liver","Kidney","Spleen"],correct:0,diff:2},
-    {q:"What type of bond involves sharing of electrons?",a:["Covalent","Ionic","Metallic","Hydrogen"],correct:0,diff:2},
-    {q:"What is the Heisenberg Uncertainty Principle about?",a:["Position & momentum","Mass & energy","Speed & time","Force & distance"],correct:0,diff:3},
-    {q:"Which particle has zero rest mass and travels at c?",a:["Photon","Electron","Neutrino","Proton"],correct:0,diff:3},
-    {q:"What is the half-life of Carbon-14?",a:["5,730 years","1,000 years","50,000 years","100 years"],correct:0,diff:3},
+    {q:"What bond involves sharing of electrons?",a:["Covalent","Ionic","Metallic","Hydrogen"],correct:0,diff:2},
+    {q:"Heisenberg Uncertainty Principle is about?",a:["Position & momentum","Mass & energy","Speed & time","Force & distance"],correct:0,diff:3},
+    {q:"Which particle has zero rest mass?",a:["Photon","Electron","Neutrino","Proton"],correct:0,diff:3},
+    {q:"Half-life of Carbon-14?",a:["5,730 years","1,000 years","50,000 years","100 years"],correct:0,diff:3},
   ],
   history:[
     {q:"In what year did World War II end?",a:["1945","1944","1946","1943"],correct:0,diff:1},
     {q:"Who was the first US President?",a:["George Washington","John Adams","Thomas Jefferson","Benjamin Franklin"],correct:0,diff:1},
-    {q:"What ancient wonder was in Alexandria, Egypt?",a:["The Lighthouse","The Colossus","The Hanging Gardens","The Mausoleum"],correct:0,diff:1},
+    {q:"Ancient wonder in Alexandria, Egypt?",a:["The Lighthouse","The Colossus","The Hanging Gardens","The Mausoleum"],correct:0,diff:1},
     {q:"The Berlin Wall fell in what year?",a:["1989","1991","1987","1993"],correct:0,diff:2},
     {q:"Who painted the Sistine Chapel ceiling?",a:["Michelangelo","Leonardo da Vinci","Raphael","Donatello"],correct:0,diff:1},
     {q:"In what year did the Titanic sink?",a:["1912","1914","1910","1916"],correct:0,diff:1},
     {q:"Which empire was ruled by Genghis Khan?",a:["Mongol","Ottoman","Roman","Persian"],correct:0,diff:1},
     {q:"The French Revolution began in what year?",a:["1789","1799","1776","1804"],correct:0,diff:2},
     {q:"First woman to win a Nobel Prize?",a:["Marie Curie","Florence Nightingale","Rosa Parks","Amelia Earhart"],correct:0,diff:2},
-    {q:"What year did the Roman Empire fall in the West?",a:["476 AD","410 AD","509 AD","550 AD"],correct:0,diff:3},
+    {q:"Roman Empire fell in the West in?",a:["476 AD","410 AD","509 AD","550 AD"],correct:0,diff:3},
   ],
   geography:[
     {q:"What is the capital of Australia?",a:["Canberra","Sydney","Melbourne","Brisbane"],correct:0,diff:1},
-    {q:"What is the longest river in the world?",a:["Nile","Amazon","Yangtze","Mississippi"],correct:0,diff:1},
-    {q:"Which country has the most natural lakes?",a:["Canada","Russia","USA","Brazil"],correct:0,diff:2},
-    {q:"What is the smallest country in the world?",a:["Vatican City","Monaco","San Marino","Liechtenstein"],correct:0,diff:1},
+    {q:"Longest river in the world?",a:["Nile","Amazon","Yangtze","Mississippi"],correct:0,diff:1},
+    {q:"Country with most natural lakes?",a:["Canada","Russia","USA","Brazil"],correct:0,diff:2},
+    {q:"Smallest country in the world?",a:["Vatican City","Monaco","San Marino","Liechtenstein"],correct:0,diff:1},
     {q:"Mount Everest is in which mountain range?",a:["Himalayas","Andes","Alps","Rockies"],correct:0,diff:1},
-    {q:"What is the capital of Iceland?",a:["Reykjavik","Oslo","Helsinki","Copenhagen"],correct:0,diff:1},
-    {q:"The Sahara Desert spans how many countries?",a:["11","7","15","4"],correct:0,diff:3},
-    {q:"What is the deepest lake in the world?",a:["Lake Baikal","Caspian Sea","Lake Superior","Crater Lake"],correct:0,diff:2},
+    {q:"Capital of Iceland?",a:["Reykjavik","Oslo","Helsinki","Copenhagen"],correct:0,diff:1},
+    {q:"Sahara Desert spans how many countries?",a:["11","7","15","4"],correct:0,diff:3},
+    {q:"Deepest lake in the world?",a:["Lake Baikal","Caspian Sea","Lake Superior","Crater Lake"],correct:0,diff:2},
     {q:"Only continent with no active volcanoes?",a:["Australia","Antarctica","Africa","Europe"],correct:0,diff:3},
   ],
   arts:[
     {q:"Who wrote 'Romeo and Juliet'?",a:["Shakespeare","Dickens","Chaucer","Marlowe"],correct:0,diff:1},
-    {q:"Art style associated with Salvador Dalí?",a:["Surrealism","Cubism","Impressionism","Dadaism"],correct:0,diff:2},
+    {q:"Art style of Salvador Dalí?",a:["Surrealism","Cubism","Impressionism","Dadaism"],correct:0,diff:2},
     {q:"Who composed the 'Four Seasons'?",a:["Vivaldi","Bach","Mozart","Beethoven"],correct:0,diff:1},
     {q:"'It was the best of times…' — which novel?",a:["A Tale of Two Cities","Oliver Twist","Great Expectations","Bleak House"],correct:0,diff:2},
-    {q:"Which art movement did Monet belong to?",a:["Impressionism","Expressionism","Realism","Romanticism"],correct:0,diff:1},
+    {q:"Art movement Monet belonged to?",a:["Impressionism","Expressionism","Realism","Romanticism"],correct:0,diff:1},
     {q:"Who wrote '1984'?",a:["George Orwell","Aldous Huxley","Ray Bradbury","H.G. Wells"],correct:0,diff:1},
     {q:"La Sagrada Família is in which city?",a:["Barcelona","Madrid","Lisbon","Rome"],correct:0,diff:2},
     {q:"Who composed 'Symphony No. 5'?",a:["Beethoven","Mozart","Brahms","Schubert"],correct:0,diff:1},
     {q:"Who painted 'The Persistence of Memory'?",a:["Salvador Dalí","René Magritte","Max Ernst","Joan Miró"],correct:0,diff:2},
   ],
   sports:[
-    {q:"Players on a basketball team on the court?",a:["5","6","4","7"],correct:0,diff:1},
+    {q:"Players on a basketball team on court?",a:["5","6","4","7"],correct:0,diff:1},
     {q:"In tennis, what is 40-40 called?",a:["Deuce","Tie","Draw","Match"],correct:0,diff:1},
-    {q:"What country invented the Olympics?",a:["Greece","Italy","Egypt","Turkey"],correct:0,diff:1},
-    {q:"How many holes in a standard round of golf?",a:["18","9","27","36"],correct:0,diff:1},
-    {q:"Max score in a single bowling game?",a:["300","270","330","240"],correct:0,diff:1},
-    {q:"How long is a standard soccer match?",a:["90 min","80 min","100 min","120 min"],correct:0,diff:1},
+    {q:"Country that invented the Olympics?",a:["Greece","Italy","Egypt","Turkey"],correct:0,diff:1},
+    {q:"Holes in a standard round of golf?",a:["18","9","27","36"],correct:0,diff:1},
+    {q:"Max score in single bowling game?",a:["300","270","330","240"],correct:0,diff:1},
+    {q:"Length of a standard soccer match?",a:["90 min","80 min","100 min","120 min"],correct:0,diff:1},
     {q:"Most FIFA World Cup wins?",a:["Brazil","Germany","Italy","Argentina"],correct:0,diff:2},
-    {q:"A touchdown in American football is worth?",a:["6 points","7 points","5 points","8 points"],correct:0,diff:1},
-    {q:"Which sport features the 'Fosbury Flop'?",a:["High Jump","Pole Vault","Long Jump","Discus"],correct:0,diff:2},
+    {q:"A touchdown is worth?",a:["6 points","7 points","5 points","8 points"],correct:0,diff:1},
+    {q:"Sport featuring the 'Fosbury Flop'?",a:["High Jump","Pole Vault","Long Jump","Discus"],correct:0,diff:2},
   ],
   entertainment:[
-    {q:"What show is set in Hawkins, Indiana?",a:["Stranger Things","The OA","Twin Peaks","Dark"],correct:0,diff:1},
-    {q:"Which movie has the song 'Let It Go'?",a:["Frozen","Brave","Tangled","Moana"],correct:0,diff:1},
+    {q:"Show set in Hawkins, Indiana?",a:["Stranger Things","The OA","Twin Peaks","Dark"],correct:0,diff:1},
+    {q:"Movie with 'Let It Go'?",a:["Frozen","Brave","Tangled","Moana"],correct:0,diff:1},
     {q:"Who played Iron Man in the MCU?",a:["Robert Downey Jr.","Chris Evans","Mark Ruffalo","Jeremy Renner"],correct:0,diff:1},
     {q:"How many seasons does 'Breaking Bad' have?",a:["5","4","6","3"],correct:0,diff:2},
     {q:"Who directed 'Jurassic Park'?",a:["Steven Spielberg","James Cameron","George Lucas","Ridley Scott"],correct:0,diff:1},
-    {q:"'The Witcher' is originally on which service?",a:["Netflix","HBO","Amazon","Hulu"],correct:0,diff:1},
+    {q:"'The Witcher' is originally on?",a:["Netflix","HBO","Amazon","Hulu"],correct:0,diff:1},
     {q:"Who sings 'Bohemian Rhapsody'?",a:["Queen","Led Zeppelin","The Beatles","Rolling Stones"],correct:0,diff:1},
-    {q:"In 'The Office', what company do they work for?",a:["Dunder Mifflin","Wernham Hogg","Vandelay Ind.","Initech"],correct:0,diff:1},
+    {q:"Company in 'The Office'?",a:["Dunder Mifflin","Wernham Hogg","Vandelay Ind.","Initech"],correct:0,diff:1},
     {q:"Who wrote 'Harry Potter'?",a:["J.K. Rowling","Philip Pullman","Tolkien","C.S. Lewis"],correct:0,diff:1},
   ],
   movielines:[
-    {q:"Complete: 'May the ___ be with you.'",a:["Force","Luck","Power","Stars"],correct:0,diff:1,movie:"Star Wars (1977)"},
-    {q:"Complete: 'You can't handle the ___!'",a:["Truth","Pressure","Heat","Pain"],correct:0,diff:1,movie:"A Few Good Men (1992)"},
-    {q:"Complete: 'I'm gonna make him an offer he can't ___.'",a:["Refuse","Deny","Resist","Decline"],correct:0,diff:1,movie:"The Godfather (1972)"},
-    {q:"Complete: 'Here's looking at you, ___.'",a:["Kid","Darling","Sweetheart","Babe"],correct:0,diff:1,movie:"Casablanca (1942)"},
-    {q:"Complete: 'Life is like a box of ___.'",a:["Chocolates","Surprises","Tricks","Mysteries"],correct:0,diff:1,movie:"Forrest Gump (1994)"},
-    {q:"Complete: 'I'll be ___.'",a:["Back","Here","There","Around"],correct:0,diff:1,movie:"The Terminator (1984)"},
-    {q:"Complete: 'You talkin' to ___?'",a:["Me","Them","Him","Her"],correct:0,diff:1,movie:"Taxi Driver (1976)"},
-    {q:"Complete: 'Just keep ___, just keep ___.'",a:["Swimming","Walking","Moving","Running"],correct:0,diff:1,movie:"Finding Nemo (2003)"},
-    {q:"Complete: 'Why so ___?'",a:["Serious","Angry","Scared","Quiet"],correct:0,diff:1,movie:"The Dark Knight (2008)"},
-    {q:"Complete: 'You had me at ___.'",a:["Hello","Goodbye","Sorry","Please"],correct:0,diff:2,movie:"Jerry Maguire (1996)"},
-    {q:"Complete: 'I am your ___.'",a:["Father","Creator","Master","Destroyer"],correct:0,diff:1,movie:"Star Wars: Empire Strikes Back"},
-    {q:"Complete: 'Nobody puts ___ in a corner.'",a:["Baby","Sandy","Women","Girls"],correct:0,diff:2,movie:"Dirty Dancing (1987)"},
+    {q:"'May the ___ be with you.'",a:["Force","Luck","Power","Stars"],correct:0,diff:1,movie:"Star Wars (1977)"},
+    {q:"'You can't handle the ___!'",a:["Truth","Pressure","Heat","Pain"],correct:0,diff:1,movie:"A Few Good Men (1992)"},
+    {q:"'An offer he can't ___.'",a:["Refuse","Deny","Resist","Decline"],correct:0,diff:1,movie:"The Godfather (1972)"},
+    {q:"'Here's looking at you, ___.'",a:["Kid","Darling","Sweetheart","Babe"],correct:0,diff:1,movie:"Casablanca (1942)"},
+    {q:"'Life is like a box of ___.'",a:["Chocolates","Surprises","Tricks","Mysteries"],correct:0,diff:1,movie:"Forrest Gump (1994)"},
+    {q:"'I'll be ___.'",a:["Back","Here","There","Around"],correct:0,diff:1,movie:"The Terminator (1984)"},
+    {q:"'You talkin' to ___?'",a:["Me","Them","Him","Her"],correct:0,diff:1,movie:"Taxi Driver (1976)"},
+    {q:"'Just keep ___, just keep ___.'",a:["Swimming","Walking","Moving","Running"],correct:0,diff:1,movie:"Finding Nemo (2003)"},
+    {q:"'Why so ___?'",a:["Serious","Angry","Scared","Quiet"],correct:0,diff:1,movie:"The Dark Knight (2008)"},
+    {q:"'You had me at ___.'",a:["Hello","Goodbye","Sorry","Please"],correct:0,diff:2,movie:"Jerry Maguire (1996)"},
+    {q:"'I am your ___.'",a:["Father","Creator","Master","Destroyer"],correct:0,diff:1,movie:"Star Wars: Empire Strikes Back"},
+    {q:"'Nobody puts ___ in a corner.'",a:["Baby","Sandy","Women","Girls"],correct:0,diff:2,movie:"Dirty Dancing (1987)"},
     {q:"Who said 'To infinity and beyond!'?",a:["Buzz Lightyear","Woody","Hamm","Rex"],correct:0,diff:1,movie:"Toy Story (1995)"},
-    {q:"Complete: 'Go ahead, make my ___.'",a:["Day","Move","Career","Life"],correct:0,diff:2,movie:"Sudden Impact (1983)"},
+    {q:"'Go ahead, make my ___.'",a:["Day","Move","Career","Life"],correct:0,diff:2,movie:"Sudden Impact (1983)"},
   ],
 };
-const ROUND_CONFIGS=[
+const ROUND_CONFIGS = [
   {name:"WARM UP",categories:["science","history","geography"],diffMult:1,pointBase:100},
   {name:"SECOND WIND",categories:["arts","sports","entertainment"],diffMult:1.5,pointBase:200},
   {name:"MOVIE MADNESS!",categories:["movielines","entertainment","science"],diffMult:2,pointBase:300},
@@ -882,365 +608,480 @@ const ROUND_CONFIGS=[
   {name:"CHAOS ROUND",categories:["movielines","arts","geography","entertainment"],diffMult:3.5,pointBase:1000},
 ];
 
-let state={mode:null,roomCode:null,players:{},myPlayerId:null,myName:'',myAvatar:'',
-  gameStarted:false,currentRound:0,currentQuestion:0,questionsPerRound:5,totalRounds:4,
-  answerTime:20,buzzMode:'first',roundQuestions:[],currentQ:null,buzzOrder:[],
-  timerInterval:null,timerVal:20,revealed:false,questionActive:false,
-  answerPhase:false,answerPlayerId:null,selectedAvatar:AVATARS[0],buzzing:false,answering:false};
-let bc=null;
+// ── STATE ──────────────────────────────────────────────────
+let state = {
+  mode:null, roomCode:null, players:{}, myPlayerId:null, myName:'', myAvatar:'',
+  currentRound:-1, currentQuestion:0, questionsPerRound:5, totalRounds:4,
+  answerTime:20, buzzMode:'first', roundQuestions:[], currentQ:null, buzzOrder:[],
+  timerInterval:null, timerVal:20, revealed:false, questionActive:false,
+  answerPhase:false, answerPlayerId:null, selectedAvatar:AVATARS[0],
+};
+let listeners = []; // firebase listeners to clean up
 
-function initChannel(code){if(bc)bc.close();bc=new BroadcastChannel('brainblast_'+code);bc.onmessage=e=>{if(state.mode==='host')handleHostMessage(e.data);if(state.mode==='player')handlePlayerMessage(e.data);};}
-function broadcast(msg){if(bc)bc.postMessage(msg);}
-function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+function offAll() { listeners.forEach(({r,fn}) => off(r,fn)); listeners = []; }
+function listen(r, event, fn) { onValue(r, fn); listeners.push({r, fn}); }
 
-function renderAvatarGrid(){
-  document.getElementById('p-avatar-grid').innerHTML=AVATARS.map((a,i)=>
-    `<button class="avatar-btn ${i===0?'selected':''}" onclick="selectAvatar('${a}',this)">${a}</button>`).join('');
-}
-renderAvatarGrid();
-function selectAvatar(av,btn){document.querySelectorAll('.avatar-btn').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');state.selectedAvatar=av;}
+// ── AVATAR GRID ────────────────────────────────────────────
+document.getElementById('p-avatar-grid').innerHTML = AVATARS.map((a,i) =>
+  `<button class="avatar-btn ${i===0?'selected':''}" onclick="selectAvatar('${a}',this)">${a}</button>`).join('');
+window.selectAvatar = (av, btn) => {
+  document.querySelectorAll('.avatar-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected'); state.selectedAvatar = av;
+};
 
-function startHost(){
-  state.mode='host';
-  const code=Math.random().toString(36).substr(2,4).toUpperCase();
-  state.roomCode=code;state.players={};
-  initChannel(code);
-  document.getElementById('display-room-code').textContent=code;
-  document.getElementById('join-url-display').textContent=`Open this page on another device → "Player" → Code: ${code}`;
+// ── HOST ────────────────────────────────────────────────────
+window.startHost = async () => {
+  state.mode = 'host';
+  const code = Math.random().toString(36).substr(2,4).toUpperCase();
+  state.roomCode = code;
+  state.players = {};
+  // Clean up any old room data
+  await set(roomRef(code), { host: true, status: 'lobby', createdAt: Date.now() });
+  document.getElementById('display-room-code').textContent = code;
   showScreen('host-lobby');
-  broadcast({type:'HOST_ONLINE',roomCode:code});
-}
-function startJoin(){state.mode='player';showScreen('phone-join');}
+  showStatus('🔥 Room created!');
 
-function handleHostMessage(msg){
-  switch(msg.type){
-    case'PLAYER_JOIN':
-      if(msg.roomCode!==state.roomCode)return;
-      state.players[msg.playerId]={name:msg.name,avatar:msg.avatar,score:0,ready:true};
-      renderHostPlayers();broadcast({type:'PLAYER_LIST',players:state.players,roomCode:state.roomCode});break;
-    case'PLAYER_BUZZ':
-      if(!state.questionActive||state.revealed)return;
-      if(!state.buzzOrder.find(b=>b===msg.playerId)){
-        state.buzzOrder.push(msg.playerId);renderBuzzQueue();
-        if(state.buzzOrder.length===1&&state.buzzMode==='first')showBuzzOverlay(msg.playerId);
-      }break;
-    case'PLAYER_ANSWER':handlePlayerAnswerOnHost(msg.playerId,msg.answerIndex);break;
-  }
+  // Listen for players joining
+  const pRef = roomRef(code, 'players');
+  onChildAdded(pRef, snap => {
+    const p = snap.val();
+    state.players[snap.key] = p;
+    renderHostPlayers();
+    // Broadcast updated player list back
+    set(roomRef(code, 'playerList'), state.players);
+  });
+  onChildChanged(pRef, snap => {
+    state.players[snap.key] = snap.val();
+    renderHostPlayers();
+    set(roomRef(code, 'playerList'), state.players);
+  });
+
+  // Listen for buzz events
+  onChildAdded(roomRef(code, 'buzzes'), snap => {
+    const b = snap.val();
+    if (!state.questionActive || state.revealed) return;
+    if (!state.buzzOrder.includes(b.playerId)) {
+      state.buzzOrder.push(b.playerId);
+      renderBuzzQueue();
+      if (state.buzzOrder.length === 1 && state.buzzMode === 'first') showBuzzOverlay(b.playerId);
+    }
+  });
+
+  // Listen for answers
+  onChildAdded(roomRef(code, 'answers'), snap => {
+    const a = snap.val();
+    handlePlayerAnswerOnHost(a.playerId, a.answerIndex);
+  });
+};
+
+function renderHostPlayers() {
+  const count = Object.keys(state.players).length;
+  document.getElementById('player-count').textContent = count;
+  document.getElementById('host-players-grid').innerHTML = count === 0
+    ? '<div style="font-family:\'Fredoka One\';color:#888;grid-column:1/-1;padding:20px;text-align:center;">Waiting for players… 👀</div>'
+    : Object.entries(state.players).map(([id,p]) =>
+        `<div class="player-chip ready"><span class="player-avatar">${p.avatar}</span><div class="player-name">${p.name}</div><div class="player-status">✓ Ready!</div></div>`
+      ).join('');
 }
 
-function renderHostPlayers(){
-  const count=Object.keys(state.players).length;
-  document.getElementById('player-count').textContent=count;
-  document.getElementById('host-players-grid').innerHTML=count===0
-    ?'<div style="font-family:\'Fredoka One\';color:#888;grid-column:1/-1;padding:20px;text-align:center;">Waiting for players… 👀</div>'
-    :Object.entries(state.players).map(([id,p])=>`<div class="player-chip ready"><span class="player-avatar">${p.avatar}</span><div class="player-name">${p.name}</div><div class="player-status">✓ Ready!</div></div>`).join('');
-}
+window.addDemoPlayer = () => {
+  const id = 'demo_'+Date.now();
+  const names = ['BLAZER','WHIZ','CRUSHER','BRAINIAC'];
+  state.players[id] = {name:names[Math.floor(Math.random()*names.length)], avatar:AVATARS[Math.floor(Math.random()*AVATARS.length)], score:0};
+  renderHostPlayers();
+  set(roomRef(state.roomCode, 'playerList'), state.players);
+};
 
-function hostStartGame(){
-  if(Object.keys(state.players).length===0){const id='test_'+Date.now();state.players[id]={name:'DEMO PLAYER',avatar:'🤖',score:0,ready:true};}
-  state.totalRounds=parseInt(document.getElementById('setting-rounds').value);
-  state.questionsPerRound=parseInt(document.getElementById('setting-qpr').value);
-  state.answerTime=parseInt(document.getElementById('setting-time').value);
-  state.buzzMode=document.getElementById('setting-buzz').value;
-  state.currentRound=-1;state.gameStarted=true;
-  broadcast({type:'GAME_START',settings:{totalRounds:state.totalRounds,questionsPerRound:state.questionsPerRound,answerTime:state.answerTime}});
-  showScreen('host-game');updateScoreboard();hostNextRound();
-}
+window.hostStartGame = async () => {
+  if (Object.keys(state.players).length === 0) window.addDemoPlayer();
+  state.totalRounds      = parseInt(document.getElementById('setting-rounds').value);
+  state.questionsPerRound= parseInt(document.getElementById('setting-qpr').value);
+  state.answerTime       = parseInt(document.getElementById('setting-time').value);
+  state.buzzMode         = document.getElementById('setting-buzz').value;
+  state.currentRound     = -1;
+  await set(roomRef(state.roomCode, 'status'), 'playing');
+  await set(roomRef(state.roomCode, 'settings'), {
+    totalRounds:state.totalRounds, questionsPerRound:state.questionsPerRound,
+    answerTime:state.answerTime, buzzMode:state.buzzMode
+  });
+  showScreen('host-game');
+  updateScoreboard();
+  hostNextRound();
+};
 
-function hostNextRound(){
+function hostNextRound() {
   state.currentRound++;
-  if(state.currentRound>=state.totalRounds){showFinalScreen();return;}
-  state.currentQuestion=0;state.roundQuestions=buildRoundQuestions(state.currentRound);
-  const rc=ROUND_CONFIGS[Math.min(state.currentRound,ROUND_CONFIGS.length-1)];
-  document.getElementById('g-round-num').textContent=state.currentRound+1;
-  document.getElementById('g-total-rounds').textContent=state.totalRounds;
-  document.getElementById('g-round-theme').textContent=rc.name;
-  showRoundTransition(state.currentRound,rc);
-  broadcast({type:'ROUND_START',round:state.currentRound,roundName:rc.name});
-  setTimeout(()=>{hideRoundTransition();hostShowQuestion();},3200);
+  if (state.currentRound >= state.totalRounds) { showFinalScreen(); return; }
+  state.currentQuestion = 0;
+  state.roundQuestions  = buildRoundQuestions(state.currentRound);
+  const rc = ROUND_CONFIGS[Math.min(state.currentRound, ROUND_CONFIGS.length-1)];
+  document.getElementById('g-round-num').textContent   = state.currentRound+1;
+  document.getElementById('g-total-rounds').textContent= state.totalRounds;
+  document.getElementById('g-round-theme').textContent = rc.name;
+  showRoundTransition(state.currentRound, rc);
+  set(roomRef(state.roomCode,'gameEvent'), {type:'ROUND_START', round:state.currentRound+1, roundName:rc.name, ts:Date.now()});
+  setTimeout(() => { hideRoundTransition(); hostShowQuestion(); }, 3200);
 }
 
-function buildRoundQuestions(ri){
-  const rc=ROUND_CONFIGS[Math.min(ri,ROUND_CONFIGS.length-1)];
-  const pool=[];
-  rc.categories.forEach(cat=>(QUESTIONS[cat]||[]).forEach(q=>pool.push({...q,category:cat})));
-  const td=Math.min(ri+1,3);
-  return pool.filter(q=>q.diff<=td).sort(()=>Math.random()-.5).slice(0,state.questionsPerRound);
+function buildRoundQuestions(ri) {
+  const rc = ROUND_CONFIGS[Math.min(ri, ROUND_CONFIGS.length-1)];
+  const pool = [];
+  rc.categories.forEach(cat => (QUESTIONS[cat]||[]).forEach(q => pool.push({...q, category:cat})));
+  return pool.filter(q => q.diff <= Math.min(ri+1,3)).sort(()=>Math.random()-.5).slice(0, state.questionsPerRound);
 }
 
-function hostShowQuestion(){
-  if(state.currentQuestion>=state.roundQuestions.length){hostNextRound();return;}
-  const q=state.roundQuestions[state.currentQuestion];
-  const rc=ROUND_CONFIGS[Math.min(state.currentRound,ROUND_CONFIGS.length-1)];
-  const pts=rc.pointBase*q.diff;
-  const cat=CATEGORIES[q.category]||CATEGORIES.science;
-  state.currentQ=q;state.revealed=false;state.buzzOrder=[];state.questionActive=true;state.answerPhase=false;state.answerPlayerId=null;
-  const badge=document.getElementById('g-category-badge');badge.textContent=cat.name;badge.className='category-badge '+cat.cssClass;
-  document.getElementById('g-q-num').textContent=`${state.currentQuestion+1}/${state.roundQuestions.length}`;
-  document.getElementById('g-value-badge').textContent=`⭐ ${pts} PTS`;
-  const qEl=document.getElementById('g-question-text');
-  qEl.className='question-text'+(q.category==='movielines'?' movie-line':'');
-  qEl.textContent=q.q+(q.movie?` — ${q.movie}`:'');
-  const letters=['A','B','C','D'];
-  document.getElementById('g-answers-grid').innerHTML=q.a.map((ans,i)=>`<div class="answer-option" id="ans-${i}"><div class="answer-letter">${letters[i]}</div><div>${ans}</div></div>`).join('');
-  document.getElementById('g-reveal-btn').style.display='';
-  document.getElementById('g-next-btn').style.display='none';
-  document.getElementById('buzz-queue').innerHTML='';
-  broadcast({type:'NEW_QUESTION',q:q.q,a:q.a,category:q.category,catName:cat.name,catClass:cat.cssClass,points:pts,questionNum:state.currentQuestion+1,total:state.roundQuestions.length,round:state.currentRound+1,movie:q.movie||null,answerTime:state.answerTime});
+function hostShowQuestion() {
+  if (state.currentQuestion >= state.roundQuestions.length) { hostNextRound(); return; }
+  const q   = state.roundQuestions[state.currentQuestion];
+  const rc  = ROUND_CONFIGS[Math.min(state.currentRound, ROUND_CONFIGS.length-1)];
+  const pts = rc.pointBase * q.diff;
+  const cat = CATEGORIES[q.category] || CATEGORIES.science;
+  state.currentQ = q; state.revealed = false; state.buzzOrder = [];
+  state.questionActive = true; state.answerPhase = false; state.answerPlayerId = null;
+
+  const badge = document.getElementById('g-category-badge');
+  badge.textContent = cat.name; badge.className = 'category-badge '+cat.cssClass;
+  document.getElementById('g-q-num').textContent       = `${state.currentQuestion+1}/${state.roundQuestions.length}`;
+  document.getElementById('g-value-badge').textContent = `⭐ ${pts} PTS`;
+  const qEl = document.getElementById('g-question-text');
+  qEl.className   = 'question-text'+(q.category==='movielines'?' movie-line':'');
+  qEl.textContent = q.q+(q.movie?` — ${q.movie}`:'');
+  const letters = ['A','B','C','D'];
+  document.getElementById('g-answers-grid').innerHTML = q.a.map((ans,i) =>
+    `<div class="answer-option" id="ans-${i}"><div class="answer-letter">${letters[i]}</div><div>${ans}</div></div>`).join('');
+  document.getElementById('g-reveal-btn').style.display = '';
+  document.getElementById('g-next-btn').style.display   = 'none';
+  document.getElementById('buzz-queue').innerHTML = '';
+
+  // Clear old buzzes & answers
+  set(roomRef(state.roomCode,'buzzes'), null);
+  set(roomRef(state.roomCode,'answers'), null);
+
+  // Broadcast question to players
+  set(roomRef(state.roomCode,'gameEvent'), {
+    type:'NEW_QUESTION', q:q.q, a:q.a, category:q.category,
+    catName:cat.name, catClass:cat.cssClass, points:pts,
+    questionNum:state.currentQuestion+1, total:state.roundQuestions.length,
+    round:state.currentRound+1, movie:q.movie||null, answerTime:state.answerTime, ts:Date.now()
+  });
   startTimer(state.answerTime);
 }
 
-function startTimer(sec){
-  clearInterval(state.timerInterval);state.timerVal=sec;updateTimerDisplay(sec,sec);
-  state.timerInterval=setInterval(()=>{
-    state.timerVal--;updateTimerDisplay(state.timerVal,sec);
-    broadcast({type:'TIMER_TICK',val:state.timerVal});
-    if(state.timerVal<=0){clearInterval(state.timerInterval);state.questionActive=false;if(!state.revealed)hostRevealAnswer();}
-  },1000);
+function startTimer(sec) {
+  clearInterval(state.timerInterval);
+  state.timerVal = sec; updateTimerDisplay(sec, sec);
+  state.timerInterval = setInterval(() => {
+    state.timerVal--;
+    updateTimerDisplay(state.timerVal, sec);
+    if (state.timerVal <= 0) {
+      clearInterval(state.timerInterval);
+      state.questionActive = false;
+      if (!state.revealed) hostRevealAnswer();
+    }
+  }, 1000);
 }
 
-function updateTimerDisplay(val,max){
-  document.getElementById('g-timer').textContent=val;
-  const p=document.getElementById('timer-progress');
-  const c=157.08;p.style.strokeDashoffset=c-(val/max)*c;
-  const pct=val/max;p.style.stroke=pct>.5?'#6BCB77':pct>.25?'#FFE033':'#FF6B6B';
-  document.getElementById('g-timer-blob').className='timer-blob'+(pct<=.25?' danger':'');
+function updateTimerDisplay(val, max) {
+  document.getElementById('g-timer').textContent = val;
+  const p = document.getElementById('timer-progress');
+  const pct = val/max;
+  p.style.strokeDashoffset = 157.08-(pct*157.08);
+  p.style.stroke = pct>.5?'#22CC55':pct>.25?'#FFD700':'#FF4545';
+  document.getElementById('g-timer-blob').className = 'timer-blob'+(pct<=.25?' danger':'');
 }
 
-function showBuzzOverlay(pid){
-  const p=state.players[pid];if(!p)return;
-  clearInterval(state.timerInterval);state.questionActive=false;state.answerPhase=true;state.answerPlayerId=pid;
-  document.getElementById('buzz-overlay-name').textContent=`${p.avatar} ${p.name}`;
+function showBuzzOverlay(pid) {
+  const p = state.players[pid]; if (!p) return;
+  clearInterval(state.timerInterval);
+  state.questionActive = false; state.answerPhase = true; state.answerPlayerId = pid;
+  document.getElementById('buzz-overlay-name').textContent = `${p.avatar} ${p.name}`;
   document.getElementById('buzz-overlay').classList.add('show');
-  broadcast({type:'BUZZ_OVERLAY',playerId:pid,name:p.name,avatar:p.avatar});
-  setTimeout(()=>{
+  set(roomRef(state.roomCode,'gameEvent'), {type:'BUZZ_OVERLAY', playerId:pid, name:p.name, avatar:p.avatar, ts:Date.now()});
+  setTimeout(() => {
     document.getElementById('buzz-overlay').classList.remove('show');
-    broadcast({type:'YOUR_TURN',playerId:pid,timeToAnswer:10});
-    startTimer(10);state.questionActive=false;state.answerPhase=true;
-  },2000);
+    set(roomRef(state.roomCode,'gameEvent'), {type:'YOUR_TURN', playerId:pid, ts:Date.now()});
+    startTimer(10);
+    state.questionActive = false; state.answerPhase = true;
+  }, 2000);
 }
 
-function renderBuzzQueue(){
-  document.getElementById('buzz-queue').innerHTML=state.buzzOrder.slice(0,4).map((pid,i)=>{
-    const p=state.players[pid];
-    return p?`<div class="buzzer-card ${i===0?'first':''}"><div class="buzzer-position">${i===0?'⚡':(i+1)}</div><div style="font-size:1.2rem;">${p.avatar}</div><div class="buzzer-name">${p.name}</div></div>`:'';
+function renderBuzzQueue() {
+  document.getElementById('buzz-queue').innerHTML = state.buzzOrder.slice(0,4).map((pid,i) => {
+    const p = state.players[pid];
+    return p ? `<div class="buzzer-card ${i===0?'first':''}"><div class="buzzer-position">${i===0?'⚡':(i+1)}</div><div style="font-size:1.2rem;">${p.avatar}</div><div class="buzzer-name">${p.name}</div></div>` : '';
   }).join('');
 }
 
-function hostRevealAnswer(){
-  clearInterval(state.timerInterval);state.revealed=true;state.questionActive=false;state.answerPhase=false;
-  const ci=state.currentQ.correct;
-  document.querySelectorAll('.answer-option').forEach((el,i)=>el.classList.add(i===ci?'correct':'wrong'));
-  document.getElementById('g-reveal-btn').style.display='none';
-  document.getElementById('g-next-btn').style.display='';
-  broadcast({type:'REVEAL_ANSWER',correctIndex:ci});
-}
-
-function handlePlayerAnswerOnHost(pid,ansIdx){
-  if(!state.answerPhase||state.answerPlayerId!==pid)return;
+window.hostRevealAnswer = () => {
   clearInterval(state.timerInterval);
-  const correct=ansIdx===state.currentQ.correct;
-  const rc=ROUND_CONFIGS[Math.min(state.currentRound,ROUND_CONFIGS.length-1)];
-  const pts=correct?Math.round(rc.pointBase*state.currentQ.diff*(1+state.timerVal/state.answerTime)):0;
-  if(correct&&state.players[pid]){state.players[pid].score+=pts;updateScoreboard();spawnDelta(pts);}
-  broadcast({type:'ANSWER_RESULT',playerId:pid,correct,points:pts,correctIndex:state.currentQ.correct});
-  state.answerPhase=false;
-  setTimeout(()=>hostRevealAnswer(),1500);
+  state.revealed = true; state.questionActive = false; state.answerPhase = false;
+  const ci = state.currentQ.correct;
+  document.querySelectorAll('.answer-option').forEach((el,i) => el.classList.add(i===ci?'correct':'wrong'));
+  document.getElementById('g-reveal-btn').style.display = 'none';
+  document.getElementById('g-next-btn').style.display   = '';
+  set(roomRef(state.roomCode,'gameEvent'), {type:'REVEAL_ANSWER', correctIndex:ci, ts:Date.now()});
+};
+
+function handlePlayerAnswerOnHost(pid, ansIdx) {
+  if (!state.answerPhase || state.answerPlayerId !== pid) return;
+  clearInterval(state.timerInterval);
+  const correct = ansIdx === state.currentQ.correct;
+  const rc  = ROUND_CONFIGS[Math.min(state.currentRound, ROUND_CONFIGS.length-1)];
+  const pts = correct ? Math.round(rc.pointBase * state.currentQ.diff * (1 + state.timerVal/state.answerTime)) : 0;
+  if (correct && state.players[pid]) {
+    state.players[pid].score = (state.players[pid].score||0) + pts;
+    set(roomRef(state.roomCode,`players/${pid}/score`), state.players[pid].score);
+    updateScoreboard();
+    spawnDelta(pts);
+  }
+  set(roomRef(state.roomCode,'gameEvent'), {type:'ANSWER_RESULT', playerId:pid, correct, points:pts, correctIndex:state.currentQ.correct, ts:Date.now()});
+  state.answerPhase = false;
+  setTimeout(() => hostRevealAnswer(), 1500);
 }
 
-function spawnDelta(pts){
-  const el=document.createElement('div');el.className='score-delta';el.textContent='+'+pts+' ⭐';
-  el.style.cssText=`top:${window.innerHeight-100}px;left:${Math.random()*300+200}px;`;
-  document.body.appendChild(el);setTimeout(()=>el.remove(),1000);
+function spawnDelta(pts) {
+  const el = document.createElement('div'); el.className = 'score-delta';
+  el.textContent = '+'+pts+' ⭐';
+  el.style.cssText = `top:${window.innerHeight-100}px;left:${Math.random()*300+200}px;`;
+  document.body.appendChild(el); setTimeout(() => el.remove(), 1000);
 }
 
-function hostNextQuestion(){state.currentQuestion++;hostShowQuestion();}
+window.hostNextQuestion = () => { state.currentQuestion++; hostShowQuestion(); };
 
-function updateScoreboard(){
-  const sorted=Object.entries(state.players).sort((a,b)=>b[1].score-a[1].score);
-  document.getElementById('scoreboard-strip').innerHTML=sorted.map(([id,p],i)=>`<div class="score-chip ${i===0?'leading':''}"><div class="score-avatar-sm">${p.avatar}</div><div class="score-info"><div class="score-name">${p.name}</div><div class="score-points">${p.score.toLocaleString()}</div></div></div>`).join('');
+function updateScoreboard() {
+  const sorted = Object.entries(state.players).sort((a,b) => b[1].score-a[1].score);
+  document.getElementById('scoreboard-strip').innerHTML = sorted.map(([id,p],i) =>
+    `<div class="score-chip ${i===0?'leading':''}"><div class="score-avatar-sm">${p.avatar}</div><div class="score-info"><div class="score-name">${p.name}</div><div class="score-points">${(p.score||0).toLocaleString()}</div></div></div>`
+  ).join('');
 }
 
-function showRoundTransition(ri,rc){
-  document.getElementById('rt-round-num').textContent=ri+1;
-  document.getElementById('rt-round-name').textContent=rc.name;
-  document.getElementById('rt-difficulty').innerHTML=Array(Math.min(ri+1,5)).fill('<span class="difficulty-star">⭐</span>').join('');
+function showRoundTransition(ri, rc) {
+  document.getElementById('rt-round-num').textContent  = ri+1;
+  document.getElementById('rt-round-name').textContent = rc.name;
+  document.getElementById('rt-difficulty').innerHTML   = Array(Math.min(ri+1,5)).fill('<span class="difficulty-star">⭐</span>').join('');
   document.getElementById('round-transition').classList.add('show');
 }
-function hideRoundTransition(){document.getElementById('round-transition').classList.remove('show');}
+function hideRoundTransition() { document.getElementById('round-transition').classList.remove('show'); }
 
-function showFinalScreen(){
+function showFinalScreen() {
   clearInterval(state.timerInterval);
-  const sorted=Object.entries(state.players).sort((a,b)=>b[1].score-a[1].score);
-  if(sorted.length)document.getElementById('winner-name').textContent=`${sorted[0][1].avatar} ${sorted[0][1].name}`;
-  const medals=['🥇','🥈','🥉'];
-  document.getElementById('final-leaderboard').innerHTML=sorted.map(([id,p],i)=>`<div class="leaderboard-row" style="animation-delay:${(i+1)*.1}s"><div class="place-number">${medals[i]||(i+1)}</div><div class="lb-avatar">${p.avatar}</div><div class="lb-name">${p.name}</div><div class="lb-score">${p.score.toLocaleString()} pts</div></div>`).join('');
-  broadcast({type:'GAME_OVER',players:state.players});
+  const sorted = Object.entries(state.players).sort((a,b) => b[1].score-a[1].score);
+  if (sorted.length) document.getElementById('winner-name').textContent = `${sorted[0][1].avatar} ${sorted[0][1].name}`;
+  const medals = ['🥇','🥈','🥉'];
+  document.getElementById('final-leaderboard').innerHTML = sorted.map(([id,p],i) =>
+    `<div class="leaderboard-row" style="animation-delay:${(i+1)*.1}s"><div class="place-number">${medals[i]||(i+1)}</div><div class="lb-avatar">${p.avatar}</div><div class="lb-name">${p.name}</div><div class="lb-score">${(p.score||0).toLocaleString()} pts</div></div>`
+  ).join('');
+  set(roomRef(state.roomCode,'gameEvent'), {type:'GAME_OVER', players:state.players, ts:Date.now()});
   showScreen('final-screen');
 }
 
-function restartGame(){Object.keys(state.players).forEach(id=>state.players[id].score=0);state.currentRound=-1;showScreen('host-lobby');}
+window.restartGame = () => {
+  Object.keys(state.players).forEach(id => state.players[id].score = 0);
+  state.currentRound = -1;
+  showScreen('host-lobby');
+};
 
-function phoneJoin(){
-  const code=document.getElementById('p-room-code').value.trim().toUpperCase();
-  const name=document.getElementById('p-player-name').value.trim();
-  const err=document.getElementById('p-join-error');
-  if(!code||code.length!==4){err.textContent='Enter a 4-letter room code! 🔑';return;}
-  if(!name){err.textContent='Enter your name! 😊';return;}
-  err.textContent='';
-  state.roomCode=code;state.myName=name;state.myAvatar=state.selectedAvatar||'🎮';
-  state.myPlayerId='player_'+Date.now()+'_'+Math.random().toString(36).substr(2,4);
-  initChannel(code);
-  broadcast({type:'PLAYER_JOIN',roomCode:code,playerId:state.myPlayerId,name:state.myName,avatar:state.myAvatar});
-  document.getElementById('pw-avatar').textContent=state.myAvatar;
-  document.getElementById('pw-name').textContent=state.myName;
-  document.getElementById('pb-avatar').textContent=state.myAvatar;
-  document.getElementById('pb-name').textContent=state.myName;
+// ── PLAYER ──────────────────────────────────────────────────
+window.startJoin = () => { state.mode = 'player'; showScreen('phone-join'); };
+
+window.phoneJoin = async () => {
+  const code = document.getElementById('p-room-code').value.trim().toUpperCase();
+  const name = document.getElementById('p-player-name').value.trim();
+  const err  = document.getElementById('p-join-error');
+  if (!code || code.length!==4) { err.textContent='Enter a 4-letter room code! 🔑'; return; }
+  if (!name)                    { err.textContent='Enter your name! 😊'; return; }
+  err.textContent = '';
+
+  // Check room exists
+  const snap = await get(roomRef(code));
+  if (!snap.exists()) { err.textContent='Room not found! Check the code 🔍'; return; }
+
+  state.roomCode    = code;
+  state.myName      = name;
+  state.myAvatar    = state.selectedAvatar || '🎮';
+  state.myPlayerId  = 'p_'+Date.now()+'_'+Math.random().toString(36).substr(2,4);
+
+  // Register player in Firebase
+  await set(roomRef(code, `players/${state.myPlayerId}`), {
+    name: state.myName, avatar: state.myAvatar, score: 0
+  });
+
+  document.getElementById('pw-avatar').textContent = state.myAvatar;
+  document.getElementById('pw-name').textContent   = state.myName;
+  document.getElementById('pb-avatar').textContent = state.myAvatar;
+  document.getElementById('pb-name').textContent   = state.myName;
   showScreen('phone-waiting');
+  showStatus('🎉 Joined!');
+
+  // Listen for player list updates
+  onValue(roomRef(code,'playerList'), snap => {
+    if (snap.exists()) { state.players = snap.val(); renderPhonePlayerList(); }
+  });
+
+  // Listen for game events
+  let lastTs = 0;
+  onValue(roomRef(code,'gameEvent'), snap => {
+    if (!snap.exists()) return;
+    const msg = snap.val();
+    if (!msg || msg.ts <= lastTs) return;
+    lastTs = msg.ts;
+    handlePlayerMessage(msg);
+  });
+};
+
+function renderPhonePlayerList() {
+  document.getElementById('pw-player-list').innerHTML = Object.entries(state.players).map(([id,p]) =>
+    `<div class="player-row"><div class="player-row-avatar">${p.avatar}</div><div class="player-row-name">${p.name}</div>${id===state.myPlayerId?'<span style="font-family:\'Fredoka One\';font-size:.75rem;color:var(--coral);margin-left:auto;">YOU! ⭐</span>':''}</div>`
+  ).join('');
 }
 
-function handlePlayerMessage(msg){
-  switch(msg.type){
-    case'PLAYER_LIST':renderPhonePlayerList(msg.players);break;
-    case'ROUND_START':showPhoneRoundNotif(msg.round,msg.roundName);break;
-    case'NEW_QUESTION':phoneNewQuestion(msg);break;
-    case'BUZZ_OVERLAY':phoneBuzzOverlayShow(msg);break;
-    case'YOUR_TURN':if(msg.playerId===state.myPlayerId)phoneShowAnswers();break;
-    case'ANSWER_RESULT':phoneAnswerResult(msg);break;
-    case'REVEAL_ANSWER':phoneRevealAnswer(msg.correctIndex);break;
-    case'GAME_OVER':phoneGameOver(msg.players);break;
+function handlePlayerMessage(msg) {
+  switch(msg.type) {
+    case 'ROUND_START':   showPhoneRoundNotif(msg.round, msg.roundName); break;
+    case 'NEW_QUESTION':  phoneNewQuestion(msg); break;
+    case 'BUZZ_OVERLAY':  phoneBuzzOverlayShow(msg); break;
+    case 'YOUR_TURN':     if (msg.playerId===state.myPlayerId) phoneShowAnswers(); break;
+    case 'ANSWER_RESULT': phoneAnswerResult(msg); break;
+    case 'REVEAL_ANSWER': phoneRevealAnswer(msg.correctIndex); break;
+    case 'GAME_OVER':     phoneGameOver(msg.players); break;
   }
 }
 
-function renderPhonePlayerList(players){
-  state.players=players;
-  document.getElementById('pw-player-list').innerHTML=Object.entries(players).map(([id,p])=>`<div class="player-row"><div class="player-row-avatar">${p.avatar}</div><div class="player-row-name">${p.name}</div>${id===state.myPlayerId?'<span style="font-family:\'Fredoka One\';font-size:.75rem;color:var(--coral);margin-left:auto;">YOU! ⭐</span>':''}</div>`).join('');
+function showPhoneRoundNotif(round, name) {
+  showScreen('phone-buzz');
+  document.getElementById('pb-round').textContent = round;
+  document.getElementById('pb-status').innerHTML  = `<span style="color:var(--coral);">🎉 ${name}!</span>`;
 }
 
-function showPhoneRoundNotif(round,name){
-  showScreen('phone-buzz');
-  document.getElementById('pb-round').textContent=round;
-  document.getElementById('pb-status').innerHTML=`<span style="color:var(--coral);">🎉 ${name}</span>`;
-}
+let phoneBuzzed = false, phoneAnswering = false;
 
-function phoneNewQuestion(msg){
+function phoneNewQuestion(msg) {
   showScreen('phone-buzz');
-  state.currentQ={q:msg.q,a:msg.a,correct:null,category:msg.category};state.buzzing=false;state.answering=false;
-  document.getElementById('pb-round').textContent=msg.round;
-  document.getElementById('pb-q-num').textContent=msg.questionNum;
-  const badge=document.getElementById('pb-category');badge.textContent=msg.catName;badge.className='category-badge '+(msg.catClass||'cat-science');
-  document.getElementById('pb-question-preview').textContent=msg.q+(msg.movie?` — ${msg.movie}`:'');
-  const btn=document.getElementById('pb-buzz-btn');btn.className='buzz-btn';btn.innerHTML='BUZZ<br>IN!';
-  document.getElementById('pb-buzz-zone').style.display='flex';
+  state.currentQ = {q:msg.q, a:msg.a, category:msg.category};
+  phoneBuzzed = false; phoneAnswering = false;
+  document.getElementById('pb-round').textContent = msg.round;
+  document.getElementById('pb-q-num').textContent = msg.questionNum;
+  const badge = document.getElementById('pb-category');
+  badge.textContent = msg.catName; badge.className = 'category-badge '+(msg.catClass||'cat-science');
+  document.getElementById('pb-question-preview').textContent = msg.q+(msg.movie?` — ${msg.movie}`:'');
+  const btn = document.getElementById('pb-buzz-btn');
+  btn.className = 'buzz-btn'; btn.innerHTML = 'BUZZ<br>IN!';
+  document.getElementById('pb-buzz-zone').style.display = 'flex';
   document.getElementById('pb-answer-zone').classList.remove('show');
-  document.getElementById('pb-status').innerHTML='<span style="color:#555;">Buzz in when you know! 💡</span>';
-  const me=state.players[state.myPlayerId];
-  if(me)document.getElementById('pb-score').textContent=me.score.toLocaleString();
+  document.getElementById('pb-status').innerHTML = '<span style="color:#555;">Buzz in when you know! 💡</span>';
+  const me = state.players[state.myPlayerId];
+  if (me) document.getElementById('pb-score').textContent = (me.score||0).toLocaleString();
   renderPhoneRanks();
 }
 
-function phoneBuzz(){
-  if(state.buzzing||state.answering)return;
-  const btn=document.getElementById('pb-buzz-btn');if(btn.classList.contains('locked'))return;
-  state.buzzing=true;btn.classList.add('buzzed-in');btn.innerHTML='BUZZED! 🔔';
-  if(navigator.vibrate)navigator.vibrate([80,40,80]);
-  broadcast({type:'PLAYER_BUZZ',playerId:state.myPlayerId,roomCode:state.roomCode,timestamp:Date.now()});
-  document.getElementById('pb-status').innerHTML='<span style="color:var(--orange);">⏳ Waiting for host…</span>';
-}
+window.phoneBuzz = () => {
+  if (phoneBuzzed || phoneAnswering) return;
+  const btn = document.getElementById('pb-buzz-btn');
+  if (btn.classList.contains('locked')) return;
+  phoneBuzzed = true;
+  btn.classList.add('buzzed-in'); btn.innerHTML = 'BUZZED! 🔔';
+  if (navigator.vibrate) navigator.vibrate([80,40,80]);
+  push(roomRef(state.roomCode,'buzzes'), {playerId:state.myPlayerId, ts:Date.now()});
+  document.getElementById('pb-status').innerHTML = '<span style="color:var(--orange);">⏳ Waiting…</span>';
+};
 
-function phoneBuzzOverlayShow(msg){
-  if(msg.playerId!==state.myPlayerId){
-    document.getElementById('pb-status').innerHTML=`<span style="color:var(--coral);">${msg.avatar} ${msg.name} buzzed first!</span>`;
+function phoneBuzzOverlayShow(msg) {
+  if (msg.playerId !== state.myPlayerId) {
+    document.getElementById('pb-status').innerHTML = `<span style="color:var(--coral);">${msg.avatar} ${msg.name} buzzed first!</span>`;
     document.getElementById('pb-buzz-btn').classList.add('locked');
   }
 }
 
-function phoneShowAnswers(){
-  state.answering=true;
-  document.getElementById('pb-buzz-zone').style.display='none';
-  document.getElementById('pb-status').innerHTML='<span style="color:var(--green);">🎯 YOUR TURN! Pick fast!</span>';
-  if(navigator.vibrate)navigator.vibrate([150,60,150]);
-  const letters=['A','B','C','D'];
-  const colors=['var(--coral)','var(--blue)','var(--orange)','var(--purple)'];
-  const zone=document.getElementById('pb-answer-zone');
-  zone.innerHTML=state.currentQ.a.map((ans,i)=>`<button class="phone-answer-btn" onclick="phoneSubmitAnswer(${i})"><span class="pa-letter" style="background:${colors[i]};color:white;">${letters[i]}</span>${ans}</button>`).join('');
+function phoneShowAnswers() {
+  phoneAnswering = true;
+  document.getElementById('pb-buzz-zone').style.display = 'none';
+  document.getElementById('pb-status').innerHTML = '<span style="color:var(--green);">🎯 YOUR TURN! Pick fast!</span>';
+  if (navigator.vibrate) navigator.vibrate([150,60,150]);
+  const letters = ['A','B','C','D'];
+  const colors  = ['var(--coral)','var(--blue)','var(--orange)','var(--purple)'];
+  const zone = document.getElementById('pb-answer-zone');
+  zone.innerHTML = state.currentQ.a.map((ans,i) =>
+    `<button class="phone-answer-btn" onclick="phoneSubmitAnswer(${i})"><span class="pa-letter" style="background:${colors[i]};color:white;">${letters[i]}</span>${ans}</button>`
+  ).join('');
   zone.classList.add('show');
 }
 
-function phoneSubmitAnswer(idx){
-  if(!state.answering)return;state.answering=false;
-  document.querySelectorAll('.phone-answer-btn').forEach(b=>b.style.pointerEvents='none');
-  broadcast({type:'PLAYER_ANSWER',playerId:state.myPlayerId,roomCode:state.roomCode,answerIndex:idx});
-  document.getElementById('pb-status').innerHTML='<span style="color:var(--blue);">✅ Submitted!</span>';
-}
+window.phoneSubmitAnswer = (idx) => {
+  if (!phoneAnswering) return; phoneAnswering = false;
+  document.querySelectorAll('.phone-answer-btn').forEach(b => b.style.pointerEvents='none');
+  push(roomRef(state.roomCode,'answers'), {playerId:state.myPlayerId, answerIndex:idx, ts:Date.now()});
+  document.getElementById('pb-status').innerHTML = '<span style="color:var(--blue);">✅ Submitted!</span>';
+};
 
-function phoneAnswerResult(msg){
-  if(msg.playerId===state.myPlayerId){
-    if(!state.players[state.myPlayerId])return;
-    state.players[state.myPlayerId].score=(state.players[state.myPlayerId].score||0)+msg.points;
-    document.getElementById('pb-score').textContent=state.players[state.myPlayerId].score.toLocaleString();
-    if(msg.correct){document.getElementById('pb-status').innerHTML=`<span style="color:var(--green);">🎉 CORRECT! +${msg.points} pts!</span>`;if(navigator.vibrate)navigator.vibrate([50,30,50]);}
-    else{document.getElementById('pb-status').innerHTML='<span style="color:var(--red);">😬 Wrong one!</span>';if(navigator.vibrate)navigator.vibrate([400]);}
+function phoneAnswerResult(msg) {
+  if (msg.playerId === state.myPlayerId) {
+    if (state.players[state.myPlayerId]) {
+      state.players[state.myPlayerId].score = (state.players[state.myPlayerId].score||0)+msg.points;
+      document.getElementById('pb-score').textContent = state.players[state.myPlayerId].score.toLocaleString();
+    }
+    if (msg.correct) {
+      document.getElementById('pb-status').innerHTML = `<span style="color:var(--green);">🎉 CORRECT! +${msg.points} pts!</span>`;
+      if (navigator.vibrate) navigator.vibrate([50,30,50]);
+    } else {
+      document.getElementById('pb-status').innerHTML = '<span style="color:var(--red);">😬 Wrong one!</span>';
+      if (navigator.vibrate) navigator.vibrate([400]);
+    }
   }
 }
 
-function phoneRevealAnswer(ci){
-  document.querySelectorAll('.phone-answer-btn').forEach((btn,i)=>btn.classList.add(i===ci?'correct-answer':'wrong-answer'));
-  document.getElementById('pb-buzz-zone').style.display='none';
-  setTimeout(()=>{
+function phoneRevealAnswer(ci) {
+  document.querySelectorAll('.phone-answer-btn').forEach((btn,i) =>
+    btn.classList.add(i===ci?'correct-answer':'wrong-answer'));
+  document.getElementById('pb-buzz-zone').style.display = 'none';
+  setTimeout(() => {
     document.getElementById('pb-answer-zone').classList.remove('show');
-    document.getElementById('pb-buzz-zone').style.display='flex';
-    const b=document.getElementById('pb-buzz-btn');b.className='buzz-btn';b.innerHTML='BUZZ<br>IN!';
-    document.getElementById('pb-status').innerHTML='<span style="color:#666;">Next question soon…</span>';
-  },3000);
+    document.getElementById('pb-buzz-zone').style.display = 'flex';
+    const b = document.getElementById('pb-buzz-btn');
+    b.className = 'buzz-btn'; b.innerHTML = 'BUZZ<br>IN!';
+    phoneBuzzed = false; phoneAnswering = false;
+    document.getElementById('pb-status').innerHTML = '<span style="color:#666;">Next question soon…</span>';
+  }, 3000);
 }
 
-function renderPhoneRanks(){
-  const sorted=Object.entries(state.players).sort((a,b)=>b[1].score-a[1].score);
-  document.getElementById('pb-rank-strip').innerHTML=sorted.map(([id,p])=>`<div class="rank-item ${id===state.myPlayerId?'me':''}"><div class="rank-avatar">${p.avatar}</div><div class="rank-name">${p.name}</div><div class="rank-pts">${p.score}</div></div>`).join('');
+function renderPhoneRanks() {
+  const sorted = Object.entries(state.players).sort((a,b) => (b[1].score||0)-(a[1].score||0));
+  document.getElementById('pb-rank-strip').innerHTML = sorted.map(([id,p]) =>
+    `<div class="rank-item ${id===state.myPlayerId?'me':''}"><div class="rank-avatar">${p.avatar}</div><div class="rank-name">${p.name}</div><div class="rank-pts">${p.score||0}</div></div>`
+  ).join('');
 }
 
-function phoneGameOver(players){
-  state.players=players;
-  const me=players[state.myPlayerId];if(!me)return;
-  const sorted=Object.entries(players).sort((a,b)=>b[1].score-a[1].score);
-  const place=sorted.findIndex(([id])=>id===state.myPlayerId)+1;
-  const medals=['🥇','🥈','🥉'];
-  document.getElementById('pf-place').textContent=medals[place-1]||`#${place}`;
-  document.getElementById('pf-avatar').textContent=me.avatar;
-  document.getElementById('pf-name').textContent=me.name;
-  document.getElementById('pf-score').textContent=me.score.toLocaleString();
+function phoneGameOver(players) {
+  if (players) state.players = players;
+  const me = state.players[state.myPlayerId]; if (!me) return;
+  const sorted = Object.entries(state.players).sort((a,b) => (b[1].score||0)-(a[1].score||0));
+  const place  = sorted.findIndex(([id]) => id===state.myPlayerId)+1;
+  const medals = ['🥇','🥈','🥉'];
+  document.getElementById('pf-place').textContent = medals[place-1]||`#${place}`;
+  document.getElementById('pf-avatar').textContent= me.avatar;
+  document.getElementById('pf-name').textContent  = me.name;
+  document.getElementById('pf-score').textContent = (me.score||0).toLocaleString();
   showScreen('phone-final');
 }
 
-function phoneReset(){
-  state.mode=null;state.roomCode=null;state.myPlayerId=null;state.players={};
-  if(bc){bc.close();bc=null;}
+window.phoneReset = () => {
+  state.mode=null; state.roomCode=null; state.myPlayerId=null; state.players={};
   showScreen('phone-join');
-}
+};
 
-document.addEventListener('keydown',e=>{
-  if(e.key===' '&&state.mode==='host'&&state.questionActive){
-    const pids=Object.keys(state.players);
-    if(pids.length)handleHostMessage({type:'PLAYER_BUZZ',playerId:pids[Math.floor(Math.random()*pids.length)]});
+// keyboard shortcuts for host testing
+document.addEventListener('keydown', e => {
+  if (e.key===' ' && state.mode==='host' && state.questionActive) {
+    const pids = Object.keys(state.players);
+    if (pids.length) {
+      const pid = pids[Math.floor(Math.random()*pids.length)];
+      push(roomRef(state.roomCode,'buzzes'), {playerId:pid, ts:Date.now()});
+    }
   }
-  if(e.key==='Enter'&&state.mode==='host'&&state.answerPhase&&state.answerPlayerId)
-    handleHostMessage({type:'PLAYER_ANSWER',playerId:state.answerPlayerId,answerIndex:state.currentQ.correct});
-});
-
-window.addEventListener('load',()=>{
-  const header=document.querySelector('.host-header');
-  if(header){
-    const btn=document.createElement('button');btn.className='btn btn-ghost';btn.textContent='+ Add Demo Player';
-    btn.onclick=()=>{
-      const id='demo_'+Date.now();
-      const names=['BLAZER','WHIZ','CRUSHER','BRAINIAC'];
-      state.players[id]={name:names[Math.floor(Math.random()*names.length)],avatar:AVATARS[Math.floor(Math.random()*AVATARS.length)],score:0,ready:true};
-      renderHostPlayers();broadcast({type:'PLAYER_LIST',players:state.players,roomCode:state.roomCode});
-    };
-    header.appendChild(btn);
+  if (e.key==='Enter' && state.mode==='host' && state.answerPhase && state.answerPlayerId) {
+    push(roomRef(state.roomCode,'answers'), {playerId:state.answerPlayerId, answerIndex:state.currentQ.correct, ts:Date.now()});
   }
 });
+
 </script>
 </body>
 </html>
