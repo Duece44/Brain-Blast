@@ -266,6 +266,22 @@
   .cat-entertainment{background:#FFB8D8;border-color:var(--ink);color:var(--ink);}
   .cat-movies{background:#FFE0A0;border-color:var(--ink);color:var(--ink);}
 
+  /* Category toggle buttons */
+  .cat-toggle{
+    font-family:'Fredoka One',cursive;font-size:.85rem;
+    border:3px solid var(--ink);border-radius:14px;
+    padding:8px 10px;cursor:pointer;
+    display:flex;align-items:center;gap:6px;
+    box-shadow:3px 3px 0 var(--ink);
+    transition:transform .1s,box-shadow .1s;
+    background:var(--cream);color:var(--ink);
+    user-select:none;
+  }
+  .cat-toggle:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--ink);}
+  .cat-toggle:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink);}
+  .cat-toggle.on{background:var(--yellow);color:var(--ink);}
+  .cat-toggle .cat-check{font-size:1rem;}
+
   .deco{position:fixed;pointer-events:none;z-index:1;font-size:2.2rem;animation:bob 3s ease-in-out infinite;opacity:.5;}
   .hidden{display:none!important;}
   .mt-20{margin-top:20px;}
@@ -273,6 +289,25 @@
   /* Connection status */
   .conn-status{position:fixed;bottom:10px;left:50%;transform:translateX(-50%);font-family:'Fredoka One',cursive;font-size:.85rem;background:rgba(0,0,0,.7);color:white;padding:6px 16px;border-radius:20px;z-index:999;opacity:0;transition:opacity .3s;}
   .conn-status.show{opacity:1;}
+
+  /* Demo mode banner */
+  .demo-banner{
+    position:fixed;top:0;left:0;right:0;z-index:500;
+    background:var(--purple);border-bottom:4px solid var(--ink);
+    font-family:'Fredoka One',cursive;font-size:1rem;color:white;
+    text-align:center;padding:8px;letter-spacing:2px;
+    display:none;
+  }
+  .demo-banner.show{display:block;}
+  .demo-thinking{
+    position:fixed;right:16px;bottom:80px;z-index:50;
+    background:var(--paper);border:4px solid var(--ink);border-radius:16px;
+    padding:10px 16px;box-shadow:var(--shadow);
+    font-family:'Fredoka One',cursive;font-size:.9rem;
+    display:none;
+    animation:bounce-in .3s cubic-bezier(.34,1.56,.64,1);
+  }
+  .demo-thinking.show{display:block;}
 
   @media(max-width:768px){
     .lobby-grid{grid-template-columns:1fr;}
@@ -289,6 +324,8 @@
 <div class="deco" style="bottom:10%;right:4%;animation-delay:.8s;">✨</div>
 <div class="deco" style="bottom:20%;left:5%;animation-delay:1.3s;">⚡</div>
 <div class="conn-status" id="conn-status">🔥 Connected!</div>
+<div class="demo-banner" id="demo-banner">🤖 DEMO MODE — AI players are competing automatically!</div>
+<div class="demo-thinking" id="demo-thinking">🤔 thinking…</div>
 
 <!-- MODE SELECT -->
 <div class="screen active" id="mode-screen">
@@ -308,6 +345,11 @@
         <span class="mode-icon">📱</span>
         <div class="mode-name">I'm a PLAYER!</div>
         <div class="mode-desc">Join from your phone and buzz in like crazy! 🔔</div>
+      </div>
+      <div class="mode-card" onclick="startDemo()" style="background:#F0E8FF;">
+        <span class="mode-icon">🤖</span>
+        <div class="mode-name">DEMO MODE</div>
+        <div class="mode-desc">Watch 3 AI players battle it out. Try the full game solo!</div>
       </div>
     </div>
     <div style="margin-top:18px;font-family:'Fredoka One';font-size:.9rem;color:#555;">🖥️ Open on TV/laptop to host &nbsp;·&nbsp; 📱 Open on phones to join</div>
@@ -339,11 +381,26 @@
         <div class="setting-item"><label>Questions / Round</label><select id="setting-qpr"><option value="3">3</option><option value="5" selected>5</option><option value="7">7</option></select></div>
         <div class="setting-item"><label>Answer Time</label><select id="setting-time"><option value="15">15 sec</option><option value="20" selected>20 sec</option><option value="30">30 sec</option></select></div>
         <div class="setting-item"><label>Buzz Mode</label><select id="setting-buzz"><option value="first">First Buzz Wins</option><option value="open">Open Answer</option></select></div>
+        <div class="setting-item"><label>Difficulty</label><select id="setting-diff"><option value="1">😊 Easy</option><option value="2" selected>🔥 Medium</option><option value="3">💀 Hard</option></select></div>
+        <div class="setting-item"><label>Wrong Answer</label><select id="setting-penalty"><option value="0">No Penalty</option><option value="0.5" selected>−50% Points</option><option value="1">−Full Points</option></select></div>
       </div>
-      <div class="join-url-box">
-        <div style="font-family:'Fredoka One';font-size:.75rem;color:#666;margin-bottom:8px;letter-spacing:2px;text-transform:uppercase;">Players join at:</div>
-        <div class="join-url">duece44.github.io/Brain-Blast</div>
-        <div style="font-family:'Fredoka One';font-size:.8rem;color:#555;margin-top:6px;">Then enter room code above ☝️</div>
+
+      <!-- CATEGORY SELECTOR -->
+      <div style="margin-top:16px;">
+        <div class="panel-heading" style="font-size:1rem;margin-bottom:12px;">🗂️ Categories
+          <button onclick="toggleAllCategories(true)"  style="font-family:'Fredoka One';font-size:.7rem;background:var(--green);color:white;border:2px solid var(--ink);border-radius:8px;padding:2px 8px;cursor:pointer;margin-left:8px;">All</button>
+          <button onclick="toggleAllCategories(false)" style="font-family:'Fredoka One';font-size:.7rem;background:var(--coral);color:white;border:2px solid var(--ink);border-radius:8px;padding:2px 8px;cursor:pointer;margin-left:4px;">None</button>
+        </div>
+        <div id="cat-toggle-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;"></div>
+      </div>
+
+      <div class="join-url-box" style="display:flex;align-items:center;gap:16px;">
+        <canvas id="qr-canvas" width="80" height="80" style="border:3px solid var(--ink);border-radius:10px;flex-shrink:0;background:white;"></canvas>
+        <div>
+          <div style="font-family:'Fredoka One';font-size:.75rem;color:#444;margin-bottom:4px;letter-spacing:2px;text-transform:uppercase;">Players scan or visit:</div>
+          <div class="join-url">duece44.github.io/Brain-Blast</div>
+          <div style="font-family:'Fredoka One';font-size:.8rem;color:#555;margin-top:4px;">Then enter room code ☝️</div>
+        </div>
       </div>
     </div>
   </div>
@@ -509,6 +566,11 @@ const CATEGORIES = {
   sports:{name:'SPORTS 🏆',cssClass:'cat-sports'},
   entertainment:{name:'ENT 🎬',cssClass:'cat-entertainment'},
   movielines:{name:'MOVIES 🎥',cssClass:'cat-movies'},
+  food:{name:'FOOD 🍕',cssClass:'cat-food'},
+  scifi:{name:'SCI-FI 🚀',cssClass:'cat-scifi'},
+  music:{name:'MUSIC 🎵',cssClass:'cat-music'},
+  sportsrecords:{name:'RECORDS 🏅',cssClass:'cat-records'},
+  canada:{name:'CANADA 🍁',cssClass:'cat-canada'},
 };
 const QUESTIONS = {
   science:[
@@ -683,30 +745,202 @@ const QUESTIONS = {
     {q:"'It puts the lotion on its skin or else it gets the hose again.' — which movie?",a:["Silence of the Lambs","Se7en","Hannibal","Red Dragon"],correct:0,diff:1},
     {q:"'I ate his liver with some fava beans and a nice Chianti.' — which movie?",a:["Silence of the Lambs","Hannibal","Red Dragon","Manhunter"],correct:0,diff:1},
   ],
+  food:[
+    {q:"What is the main ingredient in guacamole?",a:["Avocado","Tomato","Lime","Onion"],correct:0,diff:1},
+    {q:"Which country invented pizza?",a:["Italy","Greece","Spain","France"],correct:0,diff:1},
+    {q:"What is sushi traditionally wrapped in?",a:["Seaweed","Lettuce","Rice paper","Banana leaf"],correct:0,diff:1},
+    {q:"How many teaspoons in a tablespoon?",a:["3","2","4","5"],correct:0,diff:1},
+    {q:"Which nut is used to make marzipan?",a:["Almond","Hazelnut","Walnut","Cashew"],correct:0,diff:2},
+    {q:"What fruit is used to make wine?",a:["Grapes","Apples","Plums","Berries"],correct:0,diff:1},
+    {q:"What is the spiciest part of a chili pepper?",a:["Seeds/membrane","Tip","Skin","Stem"],correct:0,diff:2},
+    {q:"Which country invented sushi?",a:["Japan","China","Korea","Vietnam"],correct:0,diff:1},
+    {q:"What cheese is used in a traditional Caprese salad?",a:["Mozzarella","Brie","Feta","Ricotta"],correct:0,diff:1},
+    {q:"What is the main ingredient in hummus?",a:["Chickpeas","Lentils","Black beans","Tahini"],correct:0,diff:1},
+    {q:"Which country is the largest producer of coffee?",a:["Brazil","Colombia","Ethiopia","Vietnam"],correct:0,diff:2},
+    {q:"What is the hottest chili pepper in the world?",a:["Carolina Reaper","Ghost Pepper","Habanero","Scotch Bonnet"],correct:0,diff:2},
+    {q:"What is the most expensive spice by weight?",a:["Saffron","Vanilla","Cardamom","Truffle"],correct:0,diff:2},
+    {q:"What temperature does water boil at sea level?",a:["100°C","90°C","110°C","95°C"],correct:0,diff:1},
+    {q:"Which fast food chain has the most locations worldwide?",a:["Subway","McDonald's","Starbucks","KFC"],correct:0,diff:2},
+  ],
+  scifi:[
+    {q:"In Star Wars, what is Han Solo's ship called?",a:["Millennium Falcon","X-Wing","Tie Fighter","Star Destroyer"],correct:0,diff:1},
+    {q:"What year is the original Blade Runner set in?",a:["2019","2049","1999","2099"],correct:0,diff:2},
+    {q:"What does 'HAL' stand for in 2001: A Space Odyssey?",a:["Heuristically Programmed Algorithmic Computer","Human Artificial Lifeform","Highly Advanced Logic","Humanoid Automated Learner"],correct:0,diff:3},
+    {q:"In The Matrix, which pill does Neo take?",a:["Red","Blue","Both","Neither"],correct:0,diff:1},
+    {q:"What planet is Superman from?",a:["Krypton","Vulcan","Tatooine","Gallifrey"],correct:0,diff:1},
+    {q:"In Alien, what is the name of the ship's computer?",a:["Mother","HAL","ARIA","NOVA"],correct:0,diff:2},
+    {q:"What does 'E.T.' stand for?",a:["Extra-Terrestrial","Electronic Technology","Extraterrestrial Traveler","Exotic Terrain"],correct:0,diff:1},
+    {q:"In Terminator, what year does Skynet become self-aware?",a:["1997","2001","2029","1984"],correct:0,diff:3},
+    {q:"What color is Spock's blood?",a:["Green","Red","Blue","Clear"],correct:0,diff:2},
+    {q:"In Back to the Future, what speed must the DeLorean reach?",a:["88 mph","100 mph","120 mph","66 mph"],correct:0,diff:1},
+    {q:"What is the name of the AI in Ex Machina?",a:["Ava","Eva","Ada","Ana"],correct:0,diff:2},
+    {q:"In Dune, what is the most valuable substance?",a:["Spice/Melange","Water","Gold","Neutronium"],correct:0,diff:1},
+    {q:"What is the name of the space station in Interstellar?",a:["Cooper Station","Endurance","Ranger","Lazarus"],correct:0,diff:3},
+  ],
+  music:[
+    {q:"How many strings does a standard guitar have?",a:["6","4","7","5"],correct:0,diff:1},
+    {q:"Which band was Freddie Mercury the lead singer of?",a:["Queen","Led Zeppelin","The Rolling Stones","Aerosmith"],correct:0,diff:1},
+    {q:"What is the highest female singing voice?",a:["Soprano","Alto","Mezzo","Contralto"],correct:0,diff:1},
+    {q:"How many keys does a standard piano have?",a:["88","76","92","84"],correct:0,diff:2},
+    {q:"What does 'fortissimo' mean in music?",a:["Very loud","Very soft","Very fast","Very slow"],correct:0,diff:2},
+    {q:"Which country does K-pop originate from?",a:["South Korea","Japan","China","Thailand"],correct:0,diff:1},
+    {q:"What is the best-selling album of all time?",a:["Thriller","Back in Black","The Dark Side of the Moon","Hotel California"],correct:0,diff:2},
+    {q:"Which instrument does Yo-Yo Ma play?",a:["Cello","Violin","Piano","Viola"],correct:0,diff:2},
+    {q:"What does BPM stand for in music?",a:["Beats Per Minute","Bass Per Measure","Bars Per Movement","Beats Per Measure"],correct:0,diff:1},
+    {q:"Which band wrote 'Stairway to Heaven'?",a:["Led Zeppelin","Black Sabbath","Deep Purple","The Who"],correct:0,diff:1},
+    {q:"What is the name of Beyoncé's alter ego?",a:["Sasha Fierce","Lemonade","Queen B","Destiny"],correct:0,diff:1},
+    {q:"What does 'a cappella' mean?",a:["Without instruments","Very slowly","Very loudly","In harmony"],correct:0,diff:2},
+    {q:"Which composer was deaf when he wrote his 9th Symphony?",a:["Beethoven","Mozart","Bach","Handel"],correct:0,diff:1},
+  ],
+  sportsrecords:[
+    {q:"Who holds the record for most Olympic gold medals?",a:["Michael Phelps","Usain Bolt","Mark Spitz","Carl Lewis"],correct:0,diff:1},
+    {q:"What is the fastest recorded tennis serve (approx)?",a:["263 km/h","220 km/h","280 km/h","245 km/h"],correct:0,diff:3},
+    {q:"Who scored 100 points in a single NBA game?",a:["Wilt Chamberlain","Michael Jordan","Kobe Bryant","LeBron James"],correct:0,diff:1},
+    {q:"What is the world record 100m sprint time (approx)?",a:["9.58 sec","9.69 sec","9.72 sec","9.81 sec"],correct:0,diff:2},
+    {q:"Which country has won the most FIFA World Cups?",a:["Brazil","Germany","Italy","Argentina"],correct:0,diff:1},
+    {q:"Who has the most career goals in soccer history?",a:["Cristiano Ronaldo","Lionel Messi","Pelé","Romario"],correct:0,diff:2},
+    {q:"What is the longest winning streak in NBA history (team)?",a:["33 games","28 games","22 games","40 games"],correct:0,diff:3},
+    {q:"Who hit the most home runs in a single MLB season?",a:["Barry Bonds","Roger Maris","Babe Ruth","Mark McGwire"],correct:0,diff:2},
+    {q:"How many consecutive free throws did Ted St. Martin make (world record)?",a:["5,221","1,000","2,750","8,000"],correct:0,diff:3},
+    {q:"What team has won the most Super Bowls?",a:["New England Patriots","Pittsburgh Steelers","Dallas Cowboys","San Francisco 49ers"],correct:0,diff:2},
+    {q:"Who holds the record for most Grand Slam tennis titles (men's)?",a:["Novak Djokovic","Rafael Nadal","Roger Federer","Pete Sampras"],correct:0,diff:2},
+    {q:"What is the fastest recorded golf ball speed?",a:["220 mph","180 mph","260 mph","200 mph"],correct:0,diff:3},
+  ],
+  canada:[
+    {q:"What is the capital city of Canada?",a:["Ottawa","Toronto","Montreal","Vancouver"],correct:0,diff:1},
+    {q:"Which province has the most people?",a:["Ontario","Quebec","British Columbia","Alberta"],correct:0,diff:1},
+    {q:"What is Canada's national sport (summer)?",a:["Lacrosse","Hockey","Baseball","Soccer"],correct:0,diff:2},
+    {q:"Which Canadian city hosted the 1976 Summer Olympics?",a:["Montreal","Toronto","Vancouver","Calgary"],correct:0,diff:2},
+    {q:"What is the name of Canada's national police force?",a:["RCMP","OPP","CSIS","CBSA"],correct:0,diff:1},
+    {q:"Which province is known as 'La Belle Province'?",a:["Quebec","Ontario","New Brunswick","Nova Scotia"],correct:0,diff:1},
+    {q:"What is the tallest free-standing structure in Canada?",a:["CN Tower","Calgary Tower","Olympic Stadium","Harbour Centre"],correct:0,diff:1},
+    {q:"Who is on the Canadian $10 bill?",a:["Viola Desmond","Queen Elizabeth","Sir John A. Macdonald","Wilfrid Laurier"],correct:0,diff:2},
+    {q:"What year did Canada become a country?",a:["1867","1776","1900","1848"],correct:0,diff:1},
+    {q:"Which Canadian invented the telephone?",a:["Alexander Graham Bell","Thomas Edison","Nikola Tesla","Guglielmo Marconi"],correct:0,diff:1},
+    {q:"What is poutine made of?",a:["Fries, cheese curds & gravy","Fries, cheese & ketchup","Fries, mayo & bacon","Fries, gravy & onions"],correct:0,diff:1},
+    {q:"Which Canadian city is known as 'Hogtown'?",a:["Toronto","Winnipeg","Calgary","Edmonton"],correct:0,diff:2},
+    {q:"What is the longest highway in Canada?",a:["Trans-Canada Highway","Highway 400","Highway 1","Yellowhead Highway"],correct:0,diff:2},
+    {q:"Which province joined Canada most recently?",a:["Newfoundland","Saskatchewan","Manitoba","Prince Edward Island"],correct:0,diff:2},
+  ],
 };
 const ROUND_CONFIGS = [
-  {name:"WARM UP",categories:["science","history","geography"],diffMult:1,pointBase:100},
-  {name:"SECOND WIND",categories:["arts","sports","entertainment"],diffMult:1.5,pointBase:200},
-  {name:"MOVIE MADNESS!",categories:["movielines","entertainment","science"],diffMult:2,pointBase:300},
-  {name:"FINAL FRONTIER",categories:["history","geography","arts","sports"],diffMult:2.5,pointBase:500},
-  {name:"SUDDEN DEATH",categories:["science","history","movielines","sports"],diffMult:3,pointBase:750},
-  {name:"CHAOS ROUND",categories:["movielines","arts","geography","entertainment"],diffMult:3.5,pointBase:1000},
+  {name:"WARM UP",categories:["science","history","geography","canada"],diffMult:1,pointBase:100},
+  {name:"SECOND WIND",categories:["arts","sports","entertainment","music"],diffMult:1.5,pointBase:200},
+  {name:"MOVIE MADNESS!",categories:["movielines","entertainment","scifi"],diffMult:2,pointBase:300},
+  {name:"FINAL FRONTIER",categories:["history","geography","arts","sportsrecords"],diffMult:2.5,pointBase:500},
+  {name:"SUDDEN DEATH",categories:["science","history","movielines","food"],diffMult:3,pointBase:750},
+  {name:"CHAOS ROUND",categories:["movielines","canada","music","scifi","food"],diffMult:3.5,pointBase:1000},
 ];
 
 // ── STATE ──────────────────────────────────────────────────
 let state = {
   mode:null, roomCode:null, players:{}, myPlayerId:null, myName:'', myAvatar:'',
   currentRound:-1, currentQuestion:0, questionsPerRound:5, totalRounds:4,
-  answerTime:20, buzzMode:'first', roundQuestions:[], currentQ:null, buzzOrder:[],
+  answerTime:20, buzzMode:'first', difficulty:2, penalty:0.5,
+  roundQuestions:[], currentQ:null, buzzOrder:[],
   timerInterval:null, timerVal:20, revealed:false, questionActive:false,
-  answerPhase:false, answerPlayerId:null, selectedAvatar:AVATARS[0],
+  answerPhase:false, answerPlayerId:null, stealMode:false,
+  selectedAvatar:AVATARS[0],
 };
+
+// ── SOUND ENGINE ─────────────────────────────────────────
+const AudioCtx = window.AudioContext || window.webkitAudioContext;
+let audioCtx = null;
+function getAudio() { if (!audioCtx) audioCtx = new AudioCtx(); return audioCtx; }
+
+function playTone(freq, type, duration, vol=0.3, delay=0) {
+  try {
+    const ctx = getAudio();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.type = type; osc.frequency.value = freq;
+    gain.gain.setValueAtTime(vol, ctx.currentTime + delay);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + duration);
+    osc.start(ctx.currentTime + delay);
+    osc.stop(ctx.currentTime + delay + duration);
+  } catch(e){}
+}
+
+function soundBuzz() {
+  playTone(440,'square',0.08,0.4);
+  playTone(660,'square',0.12,0.4,0.05);
+  playTone(880,'square',0.15,0.4,0.1);
+}
+function soundCorrect() {
+  playTone(523,'sine',0.12,0.3);
+  playTone(659,'sine',0.12,0.3,0.1);
+  playTone(784,'sine',0.18,0.3,0.2);
+  playTone(1047,'sine',0.25,0.3,0.32);
+}
+function soundWrong() {
+  playTone(200,'sawtooth',0.08,0.4);
+  playTone(150,'sawtooth',0.15,0.4,0.1);
+}
+function soundRoundFanfare() {
+  [523,659,784,1047].forEach((f,i) => playTone(f,'sine',0.18,0.35,i*0.1));
+  [784,1047,1319].forEach((f,i) => playTone(f,'triangle',0.2,0.3,0.5+i*0.12));
+}
+function soundTimerTick() { playTone(800,'sine',0.05,0.15); }
+function soundSteal() {
+  playTone(300,'sawtooth',0.1,0.3);
+  playTone(600,'square',0.15,0.3,0.12);
+  playTone(900,'sine',0.2,0.3,0.24);
+}
 let listeners = []; // firebase listeners to clean up
 
 function offAll() { listeners.forEach(({r,fn}) => off(r,fn)); listeners = []; }
 function listen(r, event, fn) { onValue(r, fn); listeners.push({r, fn}); }
 
-// ── AVATAR GRID ────────────────────────────────────────────
+// ── CATEGORY TOGGLES ──────────────────────────────────────
+const ALL_CATS = ['science','history','geography','arts','sports','entertainment','movielines','food','scifi','music','sportsrecords','canada'];
+const CAT_META = {
+  science:       {label:'Science 🔬'},
+  history:       {label:'History 📜'},
+  geography:     {label:'Geo 🌍'},
+  arts:          {label:'Arts 🎨'},
+  sports:        {label:'Sports 🏆'},
+  entertainment: {label:'Ent 🎬'},
+  movielines:    {label:'Movies 🎥'},
+  food:          {label:'Food 🍕'},
+  scifi:         {label:'Sci-Fi 🚀'},
+  music:         {label:'Music 🎵'},
+  sportsrecords: {label:'Records 🏅'},
+  canada:        {label:'Canada 🍁'},
+};
+let selectedCats = new Set(ALL_CATS); // all on by default
+
+function renderCatToggles() {
+  const grid = document.getElementById('cat-toggle-grid');
+  if (!grid) return;
+  grid.innerHTML = ALL_CATS.map(cat => {
+    const on = selectedCats.has(cat);
+    return `<button class="cat-toggle ${on?'on':''}" onclick="toggleCat('${cat}',this)">
+      <span class="cat-check">${on?'✅':'⬜'}</span>${CAT_META[cat].label}
+    </button>`;
+  }).join('');
+}
+
+window.toggleCat = (cat, btn) => {
+  if (selectedCats.has(cat)) {
+    if (selectedCats.size <= 1) return; // always keep at least 1
+    selectedCats.delete(cat);
+    btn.classList.remove('on');
+    btn.querySelector('.cat-check').textContent = '⬜';
+  } else {
+    selectedCats.add(cat);
+    btn.classList.add('on');
+    btn.querySelector('.cat-check').textContent = '✅';
+  }
+};
+
+window.toggleAllCategories = (on) => {
+  if (on) ALL_CATS.forEach(c => selectedCats.add(c));
+  else { selectedCats.clear(); selectedCats.add(ALL_CATS[0]); }
+  renderCatToggles();
+};
+
+renderCatToggles();
 document.getElementById('p-avatar-grid').innerHTML = AVATARS.map((a,i) =>
   `<button class="avatar-btn ${i===0?'selected':''}" onclick="selectAvatar('${a}',this)">${a}</button>`).join('');
 window.selectAvatar = (av, btn) => {
@@ -725,6 +959,7 @@ window.startHost = async () => {
   document.getElementById('display-room-code').textContent = code;
   showScreen('host-lobby');
   showStatus('🔥 Room created!');
+  generateQR('https://duece44.github.io/Brain-Blast');
 
   // Listen for players joining
   const pRef = roomRef(code, 'players');
@@ -748,7 +983,10 @@ window.startHost = async () => {
     if (!state.buzzOrder.includes(b.playerId)) {
       state.buzzOrder.push(b.playerId);
       renderBuzzQueue();
-      if (state.buzzOrder.length === 1 && state.buzzMode === 'first') showBuzzOverlay(b.playerId);
+      if (state.buzzOrder.length === 1 && state.buzzMode === 'first') {
+        showBuzzOverlay(b.playerId, state.stealMode);
+        state.stealMode = false;
+      }
     }
   });
 
@@ -783,7 +1021,10 @@ window.hostStartGame = async () => {
   state.questionsPerRound= parseInt(document.getElementById('setting-qpr').value);
   state.answerTime       = parseInt(document.getElementById('setting-time').value);
   state.buzzMode         = document.getElementById('setting-buzz').value;
+  state.difficulty       = parseInt(document.getElementById('setting-diff').value);
+  state.penalty          = parseFloat(document.getElementById('setting-penalty').value);
   state.currentRound     = -1;
+  state.stealMode        = false;
   await set(roomRef(state.roomCode, 'status'), 'playing');
   await set(roomRef(state.roomCode, 'settings'), {
     totalRounds:state.totalRounds, questionsPerRound:state.questionsPerRound,
@@ -811,8 +1052,12 @@ function hostNextRound() {
 function buildRoundQuestions(ri) {
   const rc = ROUND_CONFIGS[Math.min(ri, ROUND_CONFIGS.length-1)];
   const pool = [];
-  rc.categories.forEach(cat => (QUESTIONS[cat]||[]).forEach(q => pool.push({...q, category:cat})));
-  return pool.filter(q => q.diff <= Math.min(ri+1,3)).sort(()=>Math.random()-.5).slice(0, state.questionsPerRound);
+  const roundCats = rc.categories.filter(c => selectedCats.has(c));
+  const catsToUse = roundCats.length > 0 ? roundCats : [...selectedCats];
+  catsToUse.forEach(cat => (QUESTIONS[cat]||[]).forEach(q => pool.push({...q, category:cat})));
+  // Filter by difficulty setting: easy=diff1 only, medium=diff1+2, hard=all
+  const maxDiff = state.difficulty === 1 ? 1 : state.difficulty === 2 ? 2 : 3;
+  return pool.filter(q => q.diff <= maxDiff).sort(()=>Math.random()-.5).slice(0, state.questionsPerRound);
 }
 
 function hostShowQuestion() {
@@ -858,6 +1103,7 @@ function startTimer(sec) {
   state.timerInterval = setInterval(() => {
     state.timerVal--;
     updateTimerDisplay(state.timerVal, sec);
+    if (state.mode === 'host' && state.timerVal <= 5 && state.timerVal > 0) soundTimerTick();
     if (state.timerVal <= 0) {
       clearInterval(state.timerInterval);
       state.questionActive = false;
@@ -875,16 +1121,22 @@ function updateTimerDisplay(val, max) {
   document.getElementById('g-timer-blob').className = 'timer-blob'+(pct<=.25?' danger':'');
 }
 
-function showBuzzOverlay(pid) {
+function showBuzzOverlay(pid, isSteal=false) {
   const p = state.players[pid]; if (!p) return;
   clearInterval(state.timerInterval);
   state.questionActive = false; state.answerPhase = true; state.answerPlayerId = pid;
-  document.getElementById('buzz-overlay-name').textContent = `${p.avatar} ${p.name}`;
+  // Show big avatar + name
+  document.getElementById('buzz-overlay-name').innerHTML = `
+    <div style="font-size:3.5rem;margin-bottom:8px;">${p.avatar}</div>
+    <div>${p.name}</div>
+  `;
   document.getElementById('buzz-overlay').classList.add('show');
-  set(roomRef(state.roomCode,'gameEvent'), {type:'BUZZ_OVERLAY', playerId:pid, name:p.name, avatar:p.avatar, ts:Date.now()});
+  document.querySelector('.buzz-label').textContent = isSteal ? '🔥 STEAL ATTEMPT!' : 'FIRST BUZZ! 🔔';
+  if (isSteal) soundSteal(); else soundBuzz();
+  set(roomRef(state.roomCode,'gameEvent'), {type:'BUZZ_OVERLAY', playerId:pid, name:p.name, avatar:p.avatar, isSteal, ts:Date.now()});
   setTimeout(() => {
     document.getElementById('buzz-overlay').classList.remove('show');
-    set(roomRef(state.roomCode,'gameEvent'), {type:'YOUR_TURN', playerId:pid, ts:Date.now()});
+    set(roomRef(state.roomCode,'gameEvent'), {type:'YOUR_TURN', playerId:pid, isSteal, ts:Date.now()});
     startTimer(10);
     state.questionActive = false; state.answerPhase = true;
   }, 2000);
@@ -912,22 +1164,52 @@ function handlePlayerAnswerOnHost(pid, ansIdx) {
   clearInterval(state.timerInterval);
   const correct = ansIdx === state.currentQ.correct;
   const rc  = ROUND_CONFIGS[Math.min(state.currentRound, ROUND_CONFIGS.length-1)];
-  const pts = correct ? Math.round(rc.pointBase * state.currentQ.diff * (1 + state.timerVal/state.answerTime)) : 0;
-  if (correct && state.players[pid]) {
-    state.players[pid].score = (state.players[pid].score||0) + pts;
-    set(roomRef(state.roomCode,`players/${pid}/score`), state.players[pid].score);
-    updateScoreboard();
-    spawnDelta(pts);
+  const baseEarned = Math.round(rc.pointBase * state.currentQ.diff * (1 + state.timerVal/state.answerTime));
+
+  if (correct) {
+    // Correct: add points
+    if (state.players[pid]) {
+      state.players[pid].score = (state.players[pid].score||0) + baseEarned;
+      set(roomRef(state.roomCode,`players/${pid}/score`), state.players[pid].score);
+      updateScoreboard();
+      spawnDelta('+'+baseEarned, true);
+      soundCorrect();
+    }
+    set(roomRef(state.roomCode,'gameEvent'), {type:'ANSWER_RESULT', playerId:pid, correct:true, points:baseEarned, correctIndex:state.currentQ.correct, ts:Date.now()});
+    state.answerPhase = false;
+    setTimeout(() => hostRevealAnswer(), 1500);
+  } else {
+    // Wrong answer: apply penalty
+    soundWrong();
+    const penaltyPts = Math.round(baseEarned * state.penalty);
+    if (state.players[pid] && penaltyPts > 0) {
+      state.players[pid].score = Math.max(0, (state.players[pid].score||0) - penaltyPts);
+      set(roomRef(state.roomCode,`players/${pid}/score`), state.players[pid].score);
+      updateScoreboard();
+      spawnDelta('-'+penaltyPts, false);
+    }
+    set(roomRef(state.roomCode,'gameEvent'), {type:'ANSWER_RESULT', playerId:pid, correct:false, points:-penaltyPts, correctIndex:state.currentQ.correct, ts:Date.now()});
+    state.answerPhase = false;
+
+    // Check if steal is possible: any other players who haven't buzzed yet?
+    const otherPlayers = Object.keys(state.players).filter(id => id !== pid && !state.buzzOrder.includes(id));
+    if (otherPlayers.length > 0 && state.buzzMode === 'first') {
+      // Steal mode: open buzzing for remaining players
+      state.stealMode = true;
+      state.questionActive = true;
+      set(roomRef(state.roomCode,'gameEvent'), {type:'STEAL_OPEN', ts:Date.now()});
+      set(roomRef(state.roomCode,'buzzes'), null);
+      startTimer(8);
+    } else {
+      setTimeout(() => hostRevealAnswer(), 1500);
+    }
   }
-  set(roomRef(state.roomCode,'gameEvent'), {type:'ANSWER_RESULT', playerId:pid, correct, points:pts, correctIndex:state.currentQ.correct, ts:Date.now()});
-  state.answerPhase = false;
-  setTimeout(() => hostRevealAnswer(), 1500);
 }
 
-function spawnDelta(pts) {
+function spawnDelta(pts, positive=true) {
   const el = document.createElement('div'); el.className = 'score-delta';
-  el.textContent = '+'+pts+' ⭐';
-  el.style.cssText = `top:${window.innerHeight-100}px;left:${Math.random()*300+200}px;`;
+  el.textContent = (positive ? '+' : '') + pts + (positive ? ' ⭐' : ' 💀');
+  el.style.cssText = `top:${window.innerHeight-100}px;left:${Math.random()*300+200}px;color:${positive?'var(--green)':'var(--red)'};`;
   document.body.appendChild(el); setTimeout(() => el.remove(), 1000);
 }
 
@@ -945,6 +1227,7 @@ function showRoundTransition(ri, rc) {
   document.getElementById('rt-round-name').textContent = rc.name;
   document.getElementById('rt-difficulty').innerHTML   = Array(Math.min(ri+1,5)).fill('<span class="difficulty-star">⭐</span>').join('');
   document.getElementById('round-transition').classList.add('show');
+  if (state.mode === 'host') soundRoundFanfare();
 }
 function hideRoundTransition() { document.getElementById('round-transition').classList.remove('show'); }
 
@@ -1003,6 +1286,9 @@ window.phoneJoin = async () => {
     if (snap.exists()) { state.players = snap.val(); renderPhonePlayerList(); }
   });
 
+  // Live scoreboard - sync scores from Firebase in real time
+  startLiveScoreboardListener(code);
+
   // Listen for game events
   let lastTs = 0;
   onValue(roomRef(code,'gameEvent'), snap => {
@@ -1020,14 +1306,51 @@ function renderPhonePlayerList() {
   ).join('');
 }
 
+// ── QR CODE (pure canvas, no library needed) ─────────────
+function generateQR(url) {
+  // Simple QR-like visual using a deterministic pattern based on URL
+  // We use a real QR via Google Charts API (works great for this)
+  const canvas = document.getElementById('qr-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const img = new Image();
+  img.crossOrigin = 'anonymous';
+  img.onload = () => { ctx.drawImage(img, 0, 0, 80, 80); };
+  img.onerror = () => {
+    // Fallback: draw a simple placeholder
+    ctx.fillStyle = 'white'; ctx.fillRect(0,0,80,80);
+    ctx.fillStyle = '#1A1A2E'; ctx.font = '8px monospace';
+    ctx.fillText('Scan →', 8, 40);
+    ctx.fillText('QR', 28, 52);
+  };
+  img.src = `https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=${encodeURIComponent(url)}&bgcolor=FFFDE8&color=0D0D1A&margin=2`;
+}
+
+// Live scoreboard on players' phones - listen to Firebase player scores
+function startLiveScoreboardListener(code) {
+  onValue(roomRef(code, 'players'), snap => {
+    if (!snap.exists()) return;
+    const players = snap.val();
+    Object.entries(players).forEach(([id, p]) => {
+      if (state.players[id]) state.players[id].score = p.score || 0;
+      else state.players[id] = p;
+    });
+    renderPhoneRanks();
+    // Update my score display
+    const me = state.players[state.myPlayerId];
+    if (me) document.getElementById('pb-score').textContent = (me.score||0).toLocaleString();
+  });
+}
+
 function handlePlayerMessage(msg) {
   switch(msg.type) {
     case 'ROUND_START':   showPhoneRoundNotif(msg.round, msg.roundName); break;
     case 'NEW_QUESTION':  phoneNewQuestion(msg); break;
     case 'BUZZ_OVERLAY':  phoneBuzzOverlayShow(msg); break;
     case 'YOUR_TURN':     if (msg.playerId===state.myPlayerId) phoneShowAnswers(); break;
-    case 'ANSWER_RESULT': phoneAnswerResult(msg); break;
+    case 'ANSWER_RESULT': phoneAnswerResult(msg); phoneUpdateLiveScoreboard(msg); break;
     case 'REVEAL_ANSWER': phoneRevealAnswer(msg.correctIndex); break;
+    case 'STEAL_OPEN':    phoneStealOpen(); break;
     case 'GAME_OVER':     phoneGameOver(msg.players); break;
   }
 }
@@ -1072,8 +1395,12 @@ window.phoneBuzz = () => {
 
 function phoneBuzzOverlayShow(msg) {
   if (msg.playerId !== state.myPlayerId) {
-    document.getElementById('pb-status').innerHTML = `<span style="color:var(--coral);">${msg.avatar} ${msg.name} buzzed first!</span>`;
+    const label = msg.isSteal ? '🔥 steal attempt!' : 'buzzed first!';
+    document.getElementById('pb-status').innerHTML = `<span style="color:var(--coral);">${msg.avatar} ${msg.name} ${label}</span>`;
     document.getElementById('pb-buzz-btn').classList.add('locked');
+  } else {
+    // It's me - play buzz sound on my phone too
+    soundBuzz();
   }
 }
 
@@ -1101,15 +1428,19 @@ window.phoneSubmitAnswer = (idx) => {
 function phoneAnswerResult(msg) {
   if (msg.playerId === state.myPlayerId) {
     if (state.players[state.myPlayerId]) {
-      state.players[state.myPlayerId].score = (state.players[state.myPlayerId].score||0)+msg.points;
-      document.getElementById('pb-score').textContent = state.players[state.myPlayerId].score.toLocaleString();
+      const newScore = Math.max(0, (state.players[state.myPlayerId].score||0) + (msg.points||0));
+      state.players[state.myPlayerId].score = newScore;
+      document.getElementById('pb-score').textContent = newScore.toLocaleString();
     }
     if (msg.correct) {
       document.getElementById('pb-status').innerHTML = `<span style="color:var(--green);">🎉 CORRECT! +${msg.points} pts!</span>`;
       if (navigator.vibrate) navigator.vibrate([50,30,50]);
+      soundCorrect();
     } else {
-      document.getElementById('pb-status').innerHTML = '<span style="color:var(--red);">😬 Wrong one!</span>';
+      const penalty = Math.abs(msg.points||0);
+      document.getElementById('pb-status').innerHTML = `<span style="color:var(--red);">😬 Wrong! ${penalty>0?'-'+penalty+' pts':''}</span>`;
       if (navigator.vibrate) navigator.vibrate([400]);
+      soundWrong();
     }
   }
 }
@@ -1148,9 +1479,261 @@ function phoneGameOver(players) {
   showScreen('phone-final');
 }
 
+function phoneStealOpen() {
+  phoneBuzzed = false; phoneAnswering = false;
+  const btn = document.getElementById('pb-buzz-btn');
+  btn.className = 'buzz-btn'; btn.innerHTML = 'STEAL<br>IT! 🔥';
+  btn.style.background = 'radial-gradient(circle at 38% 32%, #FFB830, var(--orange) 65%)';
+  btn.style.boxShadow = '0 10px 0 #AA5500, 0 13px 0 var(--ink), inset 0 4px 10px rgba(255,255,255,.35)';
+  document.getElementById('pb-buzz-zone').style.display = 'flex';
+  document.getElementById('pb-answer-zone').classList.remove('show');
+  document.getElementById('pb-status').innerHTML = '<span style="color:var(--orange);">🔥 STEAL CHANCE! Buzz fast!</span>';
+  if (navigator.vibrate) navigator.vibrate([100,50,100,50,200]);
+}
+
+function phoneUpdateLiveScoreboard(msg) {
+  // Update local player scores from answer results
+  if (msg.playerId && state.players[msg.playerId]) {
+    state.players[msg.playerId].score = Math.max(0, (state.players[msg.playerId].score||0) + (msg.points||0));
+  }
+  renderPhoneRanks();
+}
+
 window.phoneReset = () => {
   state.mode=null; state.roomCode=null; state.myPlayerId=null; state.players={};
   showScreen('phone-join');
+};
+
+// ── DEMO MODE ENGINE ─────────────────────────────────────
+const DEMO_PLAYERS = [
+  {id:'demo_1', name:'ROBO-RICK',  avatar:'🤖', score:0, skill:0.85},
+  {id:'demo_2', name:'A.I. ANNIE', avatar:'🦾', score:0, skill:0.65},
+  {id:'demo_3', name:'BYTE BARRY', avatar:'👾', score:0, skill:0.5},
+];
+let demoInterval = null;
+let demoActive   = false;
+
+window.startDemo = async () => {
+  state.mode      = 'host';
+  demoActive      = true;
+  state.buzzMode  = 'first';
+  state.penalty   = 0.5;
+  state.difficulty= 2;
+
+  // Register fake players
+  state.players = {};
+  DEMO_PLAYERS.forEach(p => {
+    state.players[p.id] = {name:p.name, avatar:p.avatar, score:0};
+  });
+
+  // Generate room code (no Firebase needed for demo)
+  const code = 'DEMO';
+  state.roomCode = code;
+  state.totalRounds       = 2;
+  state.questionsPerRound = 3;
+  state.answerTime        = 15;
+  state.currentRound      = -1;
+
+  // Show demo banner
+  document.getElementById('demo-banner').classList.add('show');
+
+  // Skip Firebase — go straight to game
+  showScreen('host-game');
+  updateScoreboard();
+
+  // Override Firebase push for demo — use local handlers directly
+  demoNextRound();
+};
+
+function demoNextRound() {
+  state.currentRound++;
+  if (state.currentRound >= state.totalRounds) { demoEndGame(); return; }
+  state.currentQuestion = 0;
+  state.roundQuestions  = buildRoundQuestions(state.currentRound);
+  const rc = ROUND_CONFIGS[Math.min(state.currentRound, ROUND_CONFIGS.length-1)];
+  document.getElementById('g-round-num').textContent    = state.currentRound+1;
+  document.getElementById('g-total-rounds').textContent = state.totalRounds;
+  document.getElementById('g-round-theme').textContent  = rc.name;
+  showRoundTransition(state.currentRound, rc);
+  setTimeout(() => { hideRoundTransition(); demoShowQuestion(); }, 3200);
+}
+
+function demoShowQuestion() {
+  if (state.currentQuestion >= state.roundQuestions.length) { demoNextRound(); return; }
+  const q   = state.roundQuestions[state.currentQuestion];
+  const rc  = ROUND_CONFIGS[Math.min(state.currentRound, ROUND_CONFIGS.length-1)];
+  const pts = rc.pointBase * q.diff;
+  const cat = CATEGORIES[q.category] || CATEGORIES.science;
+
+  state.currentQ       = q;
+  state.revealed       = false;
+  state.buzzOrder      = [];
+  state.questionActive = true;
+  state.answerPhase    = false;
+  state.answerPlayerId = null;
+  state.stealMode      = false;
+
+  // Render question on host screen
+  const badge = document.getElementById('g-category-badge');
+  badge.textContent = cat.name; badge.className = 'category-badge '+cat.cssClass;
+  document.getElementById('g-q-num').textContent       = `${state.currentQuestion+1}/${state.roundQuestions.length}`;
+  document.getElementById('g-value-badge').textContent = `⭐ ${pts} PTS`;
+  const qEl = document.getElementById('g-question-text');
+  qEl.className   = 'question-text'+(q.category==='movielines'?' movie-line':'');
+  qEl.textContent = q.q;
+  const letters = ['A','B','C','D'];
+  document.getElementById('g-answers-grid').innerHTML = q.a.map((ans,i) =>
+    `<div class="answer-option" id="ans-${i}"><div class="answer-letter">${letters[i]}</div><div>${ans}</div></div>`).join('');
+  document.getElementById('g-reveal-btn').style.display = '';
+  document.getElementById('g-next-btn').style.display   = 'none';
+  document.getElementById('buzz-queue').innerHTML       = '';
+
+  startTimer(state.answerTime);
+
+  // Schedule AI buzz-ins — each player decides when to buzz based on skill
+  DEMO_PLAYERS.forEach(p => {
+    // Faster = more skilled. Range 1.5s–6s
+    const buzzDelay = (1.5 + Math.random() * 4.5 * (1.1 - p.skill)) * 1000;
+    setTimeout(() => {
+      if (!state.questionActive || state.revealed) return;
+      if (state.buzzOrder.includes(p.id)) return;
+      demoBuzz(p.id);
+    }, buzzDelay);
+  });
+}
+
+function demoBuzz(pid) {
+  if (!state.questionActive || state.revealed) return;
+  if (state.buzzOrder.includes(pid)) return;
+  state.buzzOrder.push(pid);
+  renderBuzzQueue();
+
+  if (state.buzzOrder.length === 1) {
+    // First buzz — show overlay then AI answers
+    clearInterval(state.timerInterval);
+    state.questionActive = false;
+    state.answerPhase    = true;
+    state.answerPlayerId = pid;
+    const p = state.players[pid];
+    const dp = DEMO_PLAYERS.find(d => d.id === pid);
+
+    document.getElementById('buzz-overlay-name').innerHTML = `
+      <div style="font-size:3.5rem;margin-bottom:8px;">${p.avatar}</div>
+      <div>${p.name}</div>`;
+    document.querySelector('.buzz-label').textContent = 'FIRST BUZZ! 🔔';
+    document.getElementById('buzz-overlay').classList.add('show');
+    soundBuzz();
+
+    // Show "thinking" bubble
+    const think = document.getElementById('demo-thinking');
+    think.textContent = `${p.avatar} ${p.name} is thinking…`;
+    think.classList.add('show');
+
+    setTimeout(() => {
+      document.getElementById('buzz-overlay').classList.remove('show');
+      // AI decides answer based on skill
+      const correct = Math.random() < dp.skill;
+      const answerIdx = correct ? state.currentQ.correct
+        : (() => {
+            const wrong = [0,1,2,3].filter(i => i !== state.currentQ.correct);
+            return wrong[Math.floor(Math.random()*wrong.length)];
+          })();
+      startTimer(10);
+      state.questionActive = false;
+      state.answerPhase    = true;
+
+      // Small delay before "answering"
+      setTimeout(() => {
+        think.classList.remove('show');
+        demoHandleAnswer(pid, answerIdx);
+      }, 1500 + Math.random()*2000);
+    }, 2000);
+  }
+}
+
+function demoHandleAnswer(pid, ansIdx) {
+  if (!state.answerPhase || state.answerPlayerId !== pid) return;
+  clearInterval(state.timerInterval);
+  const correct  = ansIdx === state.currentQ.correct;
+  const rc       = ROUND_CONFIGS[Math.min(state.currentRound, ROUND_CONFIGS.length-1)];
+  const baseEarned = Math.round(rc.pointBase * state.currentQ.diff * (1 + state.timerVal/state.answerTime));
+  const dp = DEMO_PLAYERS.find(d => d.id === pid);
+
+  if (correct) {
+    state.players[pid].score = (state.players[pid].score||0) + baseEarned;
+    if (dp) dp.score = state.players[pid].score;
+    updateScoreboard();
+    spawnDelta('+'+baseEarned, true);
+    soundCorrect();
+    state.answerPhase = false;
+    setTimeout(() => demoRevealAnswer(), 1500);
+  } else {
+    soundWrong();
+    const penaltyPts = Math.round(baseEarned * state.penalty);
+    if (penaltyPts > 0) {
+      state.players[pid].score = Math.max(0, (state.players[pid].score||0) - penaltyPts);
+      if (dp) dp.score = state.players[pid].score;
+      updateScoreboard();
+      spawnDelta('-'+penaltyPts, false);
+    }
+    state.answerPhase = false;
+
+    // Steal: pick another player to steal
+    const others = DEMO_PLAYERS.filter(d => d.id !== pid && !state.buzzOrder.includes(d.id));
+    if (others.length > 0) {
+      state.stealMode = true;
+      state.questionActive = true;
+      // Pick a random other player to steal after a short delay
+      const stealer = others[Math.floor(Math.random() * others.length)];
+      const stealDelay = 1000 + Math.random() * 2000;
+      setTimeout(() => {
+        if (state.questionActive) demoBuzz(stealer.id);
+      }, stealDelay);
+      startTimer(8);
+    } else {
+      setTimeout(() => demoRevealAnswer(), 1500);
+    }
+  }
+}
+
+function demoRevealAnswer() {
+  clearInterval(state.timerInterval);
+  state.revealed = true; state.questionActive = false; state.answerPhase = false;
+  const ci = state.currentQ.correct;
+  document.querySelectorAll('.answer-option').forEach((el,i) => el.classList.add(i===ci?'correct':'wrong'));
+  document.getElementById('g-reveal-btn').style.display = 'none';
+  document.getElementById('g-next-btn').style.display   = '';
+  // Auto advance after 2.5s
+  setTimeout(() => { state.currentQuestion++; demoShowQuestion(); }, 2500);
+}
+
+function demoEndGame() {
+  clearInterval(state.timerInterval);
+  // Reset demo player scores for next run
+  DEMO_PLAYERS.forEach(p => { p.score = 0; });
+  const sorted = Object.entries(state.players).sort((a,b) => b[1].score-a[1].score);
+  if (sorted.length) document.getElementById('winner-name').textContent = `${sorted[0][1].avatar} ${sorted[0][1].name}`;
+  const medals = ['🥇','🥈','🥉'];
+  document.getElementById('final-leaderboard').innerHTML = sorted.map(([id,p],i) =>
+    `<div class="leaderboard-row" style="animation-delay:${(i+1)*.1}s"><div class="place-number">${medals[i]||(i+1)}</div><div class="lb-avatar">${p.avatar}</div><div class="lb-name">${p.name}</div><div class="lb-score">${(p.score||0).toLocaleString()} pts</div></div>`
+  ).join('');
+  showScreen('final-screen');
+  soundRoundFanfare();
+}
+
+// Override restartGame to handle demo cleanup
+const _origRestart = window.restartGame;
+window.restartGame = () => {
+  if (demoActive) {
+    demoActive = false;
+    document.getElementById('demo-banner').classList.remove('show');
+    document.getElementById('demo-thinking').classList.remove('show');
+    DEMO_PLAYERS.forEach(p => { p.score = 0; });
+    state.mode = null; state.roomCode = null; state.players = {};
+    showScreen('mode-screen');
+  } else {
+    _origRestart();
+  }
 };
 
 // keyboard shortcuts for host testing
