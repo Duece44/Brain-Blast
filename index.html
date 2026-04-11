@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>BRAIN BLAST! — Trivia</title>
+<!-- v2.1 buzzer+music update -->
 <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@700;800;900&family=Lilita+One&display=swap" rel="stylesheet">
 <svg width="0" height="0" style="position:absolute">
   <defs>
@@ -964,7 +965,7 @@ function soundRoundFanfare() {
   [523,659,784,1047].forEach((f,i) => playTone(f,'sine',0.18,0.35,i*0.1));
   [784,1047,1319].forEach((f,i) => playTone(f,'triangle',0.2,0.3,0.5+i*0.12));
 }
-function soundTimerTick() { playTone(800,'sine',0.05,0.15); }
+function soundTimerTick() { /* disabled */ }
 function soundSteal() {
   playTone(300,'sawtooth',0.1,0.3);
   playTone(600,'square',0.15,0.3,0.12);
@@ -1341,8 +1342,7 @@ function startTimer(sec) {
   state.timerInterval = setInterval(() => {
     state.timerVal--;
     updateTimerDisplay(state.timerVal, sec);
-    if (state.mode === 'host' && state.timerVal === 5) playCountdownMusic();
-    else if (state.mode === 'host' && state.timerVal <= 5 && state.timerVal > 0) soundTimerTick();
+    // countdown sound removed
     if (state.timerVal <= 0) {
       clearInterval(state.timerInterval);
       state.questionActive = false;
