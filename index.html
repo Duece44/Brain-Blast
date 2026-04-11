@@ -878,79 +878,72 @@ function soundBuzz() {
   try {
     const ctx = getAudio();
     const dest = ctx.destination;
+    const now = ctx.currentTime;
 
-    // Layer 1: main harsh buzz — sawtooth with fast vibrato
-    const osc1 = ctx.createOscillator();
-    const osc2 = ctx.createOscillator(); // vibrato LFO
-    const gain1 = ctx.createGain();
-    const distortion = ctx.createWaveShaper();
+    // ── PUNCH SOUND ──────────────────────────────────────
+    // Layer 1: Body impact — low thud with fast attack
+    const body = ctx.createOscillator();
+    const bodyG = ctx.createGain();
+    body.type = 'sine';
+    body.frequency.setValueAtTime(200, now);
+    body.frequency.exponentialRampToValueAtTime(55, now + 0.08);
+    body.connect(bodyG); bodyG.connect(dest);
+    bodyG.gain.setValueAtTime(0, now);
+    bodyG.gain.linearRampToValueAtTime(0.9 * masterVol, now + 0.003);
+    bodyG.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+    body.start(now); body.stop(now + 0.2);
 
-    // Distortion curve for that gritty buzz
-    const curve = new Float32Array(256);
-    for (let i = 0; i < 256; i++) {
-      const x = (i * 2) / 256 - 1;
-      curve[i] = (Math.PI + 400) * x / (Math.PI + 400 * Math.abs(x));
+    // Layer 2: Snap transient — the "crack" of the knuckle
+    const snapBuf = ctx.createBuffer(1, Math.floor(ctx.sampleRate * 0.025), ctx.sampleRate);
+    const snapData = snapBuf.getChannelData(0);
+    for (let i = 0; i < snapData.length; i++) {
+      snapData[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / snapData.length, 2);
     }
-    distortion.curve = curve;
-    distortion.oversample = '4x';
+    const snap = ctx.createBufferSource();
+    const snapG = ctx.createGain();
+    const snapFilt = ctx.createBiquadFilter();
+    snapFilt.type = 'bandpass';
+    snapFilt.frequency.value = 2500;
+    snapFilt.Q.value = 0.7;
+    snap.buffer = snapBuf;
+    snap.connect(snapFilt); snapFilt.connect(snapG); snapG.connect(dest);
+    snapG.gain.setValueAtTime(0.7 * masterVol, now);
+    snapG.gain.exponentialRampToValueAtTime(0.001, now + 0.025);
+    snap.start(now); snap.stop(now + 0.03);
 
-    // Vibrato: modulate pitch rapidly for that buzzing character
-    const vibrato = ctx.createOscillator();
-    const vibratoGain = ctx.createGain();
-    vibrato.frequency.value = 45; // fast wobble
-    vibratoGain.gain.value = 18;
-    vibrato.connect(vibratoGain);
-    vibratoGain.connect(osc1.frequency);
+    // Layer 3: Air whoosh — fist cutting through air just before impact
+    const whooshBuf = ctx.createBuffer(1, Math.floor(ctx.sampleRate * 0.06), ctx.sampleRate);
+    const whooshData = whooshBuf.getChannelData(0);
+    for (let i = 0; i < whooshData.length; i++) {
+      whooshData[i] = (Math.random() * 2 - 1) * (i / whooshData.length);
+    }
+    const whoosh = ctx.createBufferSource();
+    const whooshG = ctx.createGain();
+    const whooshFilt = ctx.createBiquadFilter();
+    whooshFilt.type = 'highpass';
+    whooshFilt.frequency.value = 800;
+    whoosh.buffer = whooshBuf;
+    whoosh.connect(whooshFilt); whooshFilt.connect(whooshG); whooshG.connect(dest);
+    whooshG.gain.setValueAtTime(0, now - 0.05);
+    whooshG.gain.linearRampToValueAtTime(0.3 * masterVol, now);
+    whooshG.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+    whoosh.start(Math.max(now - 0.04, ctx.currentTime));
+    whoosh.stop(now + 0.05);
 
-    osc1.type = 'sawtooth';
-    osc1.frequency.value = 120;
-
-    // Pitch drops over time like a real buzzer dying out
-    osc1.frequency.setValueAtTime(160, ctx.currentTime);
-    osc1.frequency.exponentialRampToValueAtTime(80, ctx.currentTime + 0.5);
-
-    osc1.connect(distortion);
-    distortion.connect(gain1);
-    gain1.connect(dest);
-
-    gain1.gain.setValueAtTime(0, ctx.currentTime);
-    gain1.gain.linearRampToValueAtTime(0.9 * masterVol, ctx.currentTime + 0.008);
-    gain1.gain.setValueAtTime(0.9 * masterVol, ctx.currentTime + 0.05);
-    gain1.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.55);
-
-    // Layer 2: sub rumble underneath for weight
+    // Layer 4: Sub boom — felt in the chest
     const sub = ctx.createOscillator();
-    const subGain = ctx.createGain();
+    const subG = ctx.createGain();
     sub.type = 'sine';
-    sub.frequency.setValueAtTime(60, ctx.currentTime);
-    sub.frequency.exponentialRampToValueAtTime(30, ctx.currentTime + 0.5);
-    sub.connect(subGain); subGain.connect(dest);
-    subGain.gain.setValueAtTime(0.5 * masterVol, ctx.currentTime);
-    subGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+    sub.frequency.setValueAtTime(80, now);
+    sub.frequency.exponentialRampToValueAtTime(28, now + 0.12);
+    sub.connect(subG); subG.connect(dest);
+    subG.gain.setValueAtTime(0.6 * masterVol, now);
+    subG.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+    sub.start(now); sub.stop(now + 0.18);
 
-    // Layer 3: noise burst at the attack for that percussive BZZZT snap
-    const bufSize = ctx.sampleRate * 0.04;
-    const buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
-    const data = buf.getChannelData(0);
-    for (let i = 0; i < bufSize; i++) data[i] = (Math.random() * 2 - 1);
-    const noise = ctx.createBufferSource();
-    const noiseGain = ctx.createGain();
-    const noiseFilt = ctx.createBiquadFilter();
-    noiseFilt.type = 'bandpass';
-    noiseFilt.frequency.value = 800;
-    noiseFilt.Q.value = 0.8;
-    noise.buffer = buf;
-    noise.connect(noiseFilt); noiseFilt.connect(noiseGain); noiseGain.connect(dest);
-    noiseGain.gain.setValueAtTime(0.6 * masterVol, ctx.currentTime);
-    noiseGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.04);
-
-    osc1.start(ctx.currentTime); osc1.stop(ctx.currentTime + 0.6);
-    vibrato.start(ctx.currentTime); vibrato.stop(ctx.currentTime + 0.6);
-    sub.start(ctx.currentTime); sub.stop(ctx.currentTime + 0.55);
-    noise.start(ctx.currentTime); noise.stop(ctx.currentTime + 0.05);
-
-  } catch(e){ console.warn('Buzz error:', e); }
+  } catch(e){ console.warn('Punch error:', e); }
 }
+
 function soundCorrect() {
   try {
     const ctx = getAudio();
