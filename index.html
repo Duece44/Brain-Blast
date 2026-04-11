@@ -874,9 +874,81 @@ function playTone(freq, type, duration, vol=0.3, delay=0) {
 
 // ── SFX ──────────────────────────────────────────────────
 function soundBuzz() {
-  playTone(440,'square',0.08,0.4);
-  playTone(660,'square',0.12,0.4,0.05);
-  playTone(880,'square',0.15,0.4,0.1);
+  try {
+    const ctx = getAudio();
+    const dest = ctx.destination;
+
+    // Layer 1: main harsh buzz — sawtooth with fast vibrato
+    const osc1 = ctx.createOscillator();
+    const osc2 = ctx.createOscillator(); // vibrato LFO
+    const gain1 = ctx.createGain();
+    const distortion = ctx.createWaveShaper();
+
+    // Distortion curve for that gritty buzz
+    const curve = new Float32Array(256);
+    for (let i = 0; i < 256; i++) {
+      const x = (i * 2) / 256 - 1;
+      curve[i] = (Math.PI + 400) * x / (Math.PI + 400 * Math.abs(x));
+    }
+    distortion.curve = curve;
+    distortion.oversample = '4x';
+
+    // Vibrato: modulate pitch rapidly for that buzzing character
+    const vibrato = ctx.createOscillator();
+    const vibratoGain = ctx.createGain();
+    vibrato.frequency.value = 45; // fast wobble
+    vibratoGain.gain.value = 18;
+    vibrato.connect(vibratoGain);
+    vibratoGain.connect(osc1.frequency);
+
+    osc1.type = 'sawtooth';
+    osc1.frequency.value = 120;
+
+    // Pitch drops over time like a real buzzer dying out
+    osc1.frequency.setValueAtTime(160, ctx.currentTime);
+    osc1.frequency.exponentialRampToValueAtTime(80, ctx.currentTime + 0.5);
+
+    osc1.connect(distortion);
+    distortion.connect(gain1);
+    gain1.connect(dest);
+
+    gain1.gain.setValueAtTime(0, ctx.currentTime);
+    gain1.gain.linearRampToValueAtTime(0.9 * masterVol, ctx.currentTime + 0.008);
+    gain1.gain.setValueAtTime(0.9 * masterVol, ctx.currentTime + 0.05);
+    gain1.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.55);
+
+    // Layer 2: sub rumble underneath for weight
+    const sub = ctx.createOscillator();
+    const subGain = ctx.createGain();
+    sub.type = 'sine';
+    sub.frequency.setValueAtTime(60, ctx.currentTime);
+    sub.frequency.exponentialRampToValueAtTime(30, ctx.currentTime + 0.5);
+    sub.connect(subGain); subGain.connect(dest);
+    subGain.gain.setValueAtTime(0.5 * masterVol, ctx.currentTime);
+    subGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+
+    // Layer 3: noise burst at the attack for that percussive BZZZT snap
+    const bufSize = ctx.sampleRate * 0.04;
+    const buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < bufSize; i++) data[i] = (Math.random() * 2 - 1);
+    const noise = ctx.createBufferSource();
+    const noiseGain = ctx.createGain();
+    const noiseFilt = ctx.createBiquadFilter();
+    noiseFilt.type = 'bandpass';
+    noiseFilt.frequency.value = 800;
+    noiseFilt.Q.value = 0.8;
+    noise.buffer = buf;
+    noise.connect(noiseFilt); noiseFilt.connect(noiseGain); noiseGain.connect(dest);
+    noiseGain.gain.setValueAtTime(0.6 * masterVol, ctx.currentTime);
+    noiseGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.04);
+
+    osc1.start(ctx.currentTime); osc1.stop(ctx.currentTime + 0.6);
+    vibrato.start(ctx.currentTime); vibrato.stop(ctx.currentTime + 0.6);
+    sub.start(ctx.currentTime); sub.stop(ctx.currentTime + 0.55);
+    noise.start(ctx.currentTime); noise.stop(ctx.currentTime + 0.05);
+
+  } catch(e){ console.warn('Buzz error:', e); }
 }
 function soundCorrect() {
   playTone(523,'sine',0.12,0.3);
