@@ -843,18 +843,28 @@ let state = {
   selectedAvatar:AVATARS[0],
 };
 
-// ── SOUND ENGINE ─────────────────────────────────────────
+// ── SOUND & MUSIC ENGINE ─────────────────────────────────
 const AudioCtx = window.AudioContext || window.webkitAudioContext;
 let audioCtx = null;
-function getAudio() { if (!audioCtx) audioCtx = new AudioCtx(); return audioCtx; }
+function getAudio() {
+  if (!audioCtx) audioCtx = new AudioCtx();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  return audioCtx;
+}
+
+// Master volume control
+let masterVol = 0.7;
+let musicEnabled = true;
 
 function playTone(freq, type, duration, vol=0.3, delay=0) {
   try {
     const ctx = getAudio();
-    const osc = ctx.createOscillator();
+    const osc  = ctx.createOscillator();
     const gain = ctx.createGain();
-    osc.connect(gain); gain.connect(ctx.destination);
+    const master = ctx.createGain();
+    osc.connect(gain); gain.connect(master); master.connect(ctx.destination);
     osc.type = type; osc.frequency.value = freq;
+    master.gain.value = masterVol;
     gain.gain.setValueAtTime(vol, ctx.currentTime + delay);
     gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + duration);
     osc.start(ctx.currentTime + delay);
@@ -862,6 +872,7 @@ function playTone(freq, type, duration, vol=0.3, delay=0) {
   } catch(e){}
 }
 
+// ── SFX ──────────────────────────────────────────────────
 function soundBuzz() {
   playTone(440,'square',0.08,0.4);
   playTone(660,'square',0.12,0.4,0.05);
@@ -887,6 +898,159 @@ function soundSteal() {
   playTone(600,'square',0.15,0.3,0.12);
   playTone(900,'sine',0.2,0.3,0.24);
 }
+
+// ── MUSIC ENGINE ─────────────────────────────────────────────────────────
+// Uses real MP3 files hosted on GitHub — much better than synthesis!
+// Files in repo root: Spy_Glass.mp3, big-band-game.mp3, Volatile_Reaction.mp3, fanfare.mp3
+
+const MUSIC_BASE = 'https://duece44.github.io/Brain-Blast/';
+const TRACKS = {
+  lobby:     MUSIC_BASE + 'Spy%20Glass.mp3',
+  game:      MUSIC_BASE + 'music_for_videos-big-band-tv-show-logo-164230.mp3',
+  countdown: MUSIC_BASE + 'Volatile%20Reaction.mp3',
+  victory:   MUSIC_BASE + 'mfcc-fanfare-fanfare-triumph-triumphant-music-358362.mp3',
+};
+
+let musicNodes = {};
+let currentTrack = null;
+let audioElements = {}; // cache Audio elements
+
+function getAudioEl(track) {
+  if (!audioElements[track]) {
+    const el = new Audio(TRACKS[track]);
+    el.loop = (track === 'lobby' || track === 'game');
+    el.volume = masterVol * 0.5;
+    el.preload = 'auto';
+    // Log load errors
+    el.onerror = () => console.log('🎵 Failed to load:', TRACKS[track]);
+    el.oncanplay = () => console.log('🎵 Ready to play:', track);
+    audioElements[track] = el;
+  }
+  return audioElements[track];
+}
+
+function stopMusic(track) {
+  if (audioElements[track]) {
+    try {
+      audioElements[track].pause();
+      audioElements[track].currentTime = 0;
+    } catch(e){}
+  }
+  if (track === currentTrack) currentTrack = null;
+}
+
+function stopAllMusic() {
+  Object.keys(audioElements).forEach(t => stopMusic(t));
+  musicTimeouts.forEach(clearTimeout);
+  musicTimeouts = [];
+  currentTrack = null;
+}
+
+let musicTimeouts = [];
+
+function playTrack(track, fadeIn=true) {
+  if (!musicEnabled) return;
+  // Stop everything else first
+  Object.keys(audioElements).forEach(t => { if (t !== track) stopMusic(t); });
+
+  const el = getAudioEl(track);
+  currentTrack = track;
+
+  if (fadeIn) {
+    el.volume = 0;
+    el.play().catch(e => console.log('🎵 Music error:', e.message, '| URL:', el.src));
+    console.log('🎵 Attempting track:', track, '| URL:', el.src);
+    // Fade in over 1 second
+    let vol = 0;
+    const target = masterVol * 0.5;
+    const step = target / 20;
+    const fade = setInterval(() => {
+      vol = Math.min(vol + step, target);
+      el.volume = vol;
+      if (vol >= target) clearInterval(fade);
+    }, 50);
+  } else {
+    el.volume = masterVol * 0.5;
+    el.play().catch(e => console.log('Music blocked by browser'));
+  }
+}
+
+function fadeOutMusic(track, duration=1000) {
+  const el = audioElements[track];
+  if (!el) return;
+  const startVol = el.volume;
+  const steps = 20;
+  const step = startVol / steps;
+  let count = 0;
+  const fade = setInterval(() => {
+    count++;
+    el.volume = Math.max(0, startVol - step * count);
+    if (count >= steps) {
+      clearInterval(fade);
+      el.pause();
+      el.currentTime = 0;
+    }
+  }, duration / steps);
+}
+
+// Public music functions called by game events
+function playLobbyMusic()     { playTrack('lobby'); }
+function playGameMusic()      { 
+  fadeOutMusic('lobby', 800);
+  setTimeout(() => playTrack('game'), 600);
+}
+function playCountdownMusic() {
+  fadeOutMusic('game', 300);
+  setTimeout(() => playTrack('countdown', false), 200);
+}
+function playVictoryMusic()   {
+  stopAllMusic();
+  setTimeout(() => playTrack('victory', false), 300);
+}
+
+// Update volume when masterVol changes
+function syncMusicVolume() {
+  Object.values(audioElements).forEach(el => {
+    if (!el.paused) el.volume = masterVol * 0.5;
+  });
+}
+
+// ── MUSIC TOGGLE BUTTON ───────────────────────────────────
+function createMusicToggle() {
+  const btn = document.createElement('button');
+  btn.id = 'music-toggle';
+  btn.innerHTML = '🎵';
+  btn.title = 'Toggle Music';
+  btn.style.cssText = `
+    position:fixed; bottom:16px; right:16px; z-index:9999;
+    width:48px; height:48px; border-radius:50%;
+    background:var(--yellow); border:4px solid var(--ink);
+    font-size:1.4rem; cursor:pointer;
+    box-shadow:4px 4px 0 var(--ink);
+    transition:transform .1s, box-shadow .1s;
+    display:flex; align-items:center; justify-content:center;
+  `;
+  btn.onclick = () => {
+    musicEnabled = !musicEnabled;
+    btn.innerHTML = musicEnabled ? '🎵' : '🔇';
+    btn.style.background = musicEnabled ? 'var(--yellow)' : '#ccc';
+    if (!musicEnabled) stopAllMusic();
+    else {
+      // Resume appropriate track
+      const screen = document.querySelector('.screen.active');
+      if (screen) {
+        const id = screen.id;
+        if (id === 'host-lobby' || id === 'phone-join' || id === 'phone-waiting') playLobbyMusic();
+        else if (id === 'host-game' || id === 'phone-buzz') playGameMusic();
+        else if (id === 'final-screen' || id === 'phone-final') playVictoryMusic();
+      }
+    }
+  };
+  btn.onmouseover = () => { btn.style.transform='translate(-2px,-2px)'; btn.style.boxShadow='6px 6px 0 var(--ink)'; };
+  btn.onmouseout  = () => { btn.style.transform=''; btn.style.boxShadow='4px 4px 0 var(--ink)'; };
+  document.body.appendChild(btn);
+}
+createMusicToggle();
 let listeners = []; // firebase listeners to clean up
 
 function offAll() { listeners.forEach(({r,fn}) => off(r,fn)); listeners = []; }
@@ -951,6 +1115,8 @@ window.selectAvatar = (av, btn) => {
 // ── HOST ────────────────────────────────────────────────────
 window.startHost = async () => {
   state.mode = 'host';
+  // Start music IMMEDIATELY on click (before any async) to satisfy autoplay policy
+  playLobbyMusic();
   const code = Math.random().toString(36).substr(2,4).toUpperCase();
   state.roomCode = code;
   state.players = {};
@@ -1103,7 +1269,8 @@ function startTimer(sec) {
   state.timerInterval = setInterval(() => {
     state.timerVal--;
     updateTimerDisplay(state.timerVal, sec);
-    if (state.mode === 'host' && state.timerVal <= 5 && state.timerVal > 0) soundTimerTick();
+    if (state.mode === 'host' && state.timerVal === 5) playCountdownMusic();
+    else if (state.mode === 'host' && state.timerVal <= 5 && state.timerVal > 0) soundTimerTick();
     if (state.timerVal <= 0) {
       clearInterval(state.timerInterval);
       state.questionActive = false;
@@ -1130,6 +1297,7 @@ function showBuzzOverlay(pid, isSteal=false) {
     <div style="font-size:3.5rem;margin-bottom:8px;">${p.avatar}</div>
     <div>${p.name}</div>
   `;
+  stopMusic('game');
   document.getElementById('buzz-overlay').classList.add('show');
   document.querySelector('.buzz-label').textContent = isSteal ? '🔥 STEAL ATTEMPT!' : 'FIRST BUZZ! 🔔';
   if (isSteal) soundSteal(); else soundBuzz();
@@ -1241,16 +1409,18 @@ function showFinalScreen() {
   ).join('');
   set(roomRef(state.roomCode,'gameEvent'), {type:'GAME_OVER', players:state.players, ts:Date.now()});
   showScreen('final-screen');
+  playVictoryMusic();
 }
 
 window.restartGame = () => {
   Object.keys(state.players).forEach(id => state.players[id].score = 0);
   state.currentRound = -1;
   showScreen('host-lobby');
+  playLobbyMusic();
 };
 
 // ── PLAYER ──────────────────────────────────────────────────
-window.startJoin = () => { state.mode = 'player'; showScreen('phone-join'); };
+window.startJoin = () => { state.mode = 'player'; playLobbyMusic(); showScreen('phone-join'); };
 
 window.phoneJoin = async () => {
   const code = document.getElementById('p-room-code').value.trim().toUpperCase();
@@ -1280,6 +1450,7 @@ window.phoneJoin = async () => {
   document.getElementById('pb-name').textContent   = state.myName;
   showScreen('phone-waiting');
   showStatus('🎉 Joined!');
+  playLobbyMusic();
 
   // Listen for player list updates
   onValue(roomRef(code,'playerList'), snap => {
@@ -1377,6 +1548,7 @@ function phoneNewQuestion(msg) {
   document.getElementById('pb-buzz-zone').style.display = 'flex';
   document.getElementById('pb-answer-zone').classList.remove('show');
   document.getElementById('pb-status').innerHTML = '<span style="color:#555;">Buzz in when you know! 💡</span>';
+  playGameMusic();
   const me = state.players[state.myPlayerId];
   if (me) document.getElementById('pb-score').textContent = (me.score||0).toLocaleString();
   renderPhoneRanks();
@@ -1477,6 +1649,7 @@ function phoneGameOver(players) {
   document.getElementById('pf-name').textContent  = me.name;
   document.getElementById('pf-score').textContent = (me.score||0).toLocaleString();
   showScreen('phone-final');
+  playVictoryMusic();
 }
 
 function phoneStealOpen() {
@@ -1534,6 +1707,7 @@ window.startDemo = async () => {
   state.answerTime        = 15;
   state.currentRound      = -1;
 
+  playLobbyMusic();
   // Show demo banner
   document.getElementById('demo-banner').classList.add('show');
 
@@ -1718,7 +1892,7 @@ function demoEndGame() {
     `<div class="leaderboard-row" style="animation-delay:${(i+1)*.1}s"><div class="place-number">${medals[i]||(i+1)}</div><div class="lb-avatar">${p.avatar}</div><div class="lb-name">${p.name}</div><div class="lb-score">${(p.score||0).toLocaleString()} pts</div></div>`
   ).join('');
   showScreen('final-screen');
-  soundRoundFanfare();
+  playVictoryMusic();
 }
 
 // Override restartGame to handle demo cleanup
@@ -1730,6 +1904,7 @@ window.restartGame = () => {
     document.getElementById('demo-thinking').classList.remove('show');
     DEMO_PLAYERS.forEach(p => { p.score = 0; });
     state.mode = null; state.roomCode = null; state.players = {};
+    stopAllMusic();
     showScreen('mode-screen');
   } else {
     _origRestart();
