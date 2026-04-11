@@ -952,14 +952,130 @@ function soundBuzz() {
   } catch(e){ console.warn('Buzz error:', e); }
 }
 function soundCorrect() {
-  playTone(523,'sine',0.12,0.3);
-  playTone(659,'sine',0.12,0.3,0.1);
-  playTone(784,'sine',0.18,0.3,0.2);
-  playTone(1047,'sine',0.25,0.3,0.32);
+  try {
+    const ctx = getAudio();
+    const dest = ctx.destination;
+    const now = ctx.currentTime;
+
+    // Orchestral brass stab + string shimmer + reverb tail
+    // Layer 1: Bright brass chord hit (C major triad)
+    [[523,0],[659,0.01],[784,0.02],[1047,0.03]].forEach(([f,delay]) => {
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      const dist = ctx.createWaveShaper();
+      // Soft clip for brass warmth
+      const c = new Float32Array(256);
+      for(let i=0;i<256;i++){const x=(i*2)/256-1; c[i]=Math.tanh(x*2)*0.8;}
+      dist.curve = c;
+      o.type = 'sawtooth'; o.frequency.value = f;
+      o.connect(dist); dist.connect(g); g.connect(dest);
+      g.gain.setValueAtTime(0, now+delay);
+      g.gain.linearRampToValueAtTime(0.22*masterVol, now+delay+0.015);
+      g.gain.exponentialRampToValueAtTime(0.08*masterVol, now+delay+0.18);
+      g.gain.exponentialRampToValueAtTime(0.001, now+delay+0.9);
+      o.start(now+delay); o.stop(now+delay+1.0);
+    });
+
+    // Layer 2: Warm sine pad underneath — full chord swell
+    [[261,0],[329,0],[392,0],[523,0]].forEach(([f,delay]) => {
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type = 'sine'; o.frequency.value = f;
+      o.connect(g); g.connect(dest);
+      g.gain.setValueAtTime(0, now);
+      g.gain.linearRampToValueAtTime(0.12*masterVol, now+0.04);
+      g.gain.exponentialRampToValueAtTime(0.001, now+1.4);
+      o.start(now); o.stop(now+1.5);
+    });
+
+    // Layer 3: Shimmer — high triangle sparkle ascending
+    [1047,1319,1568,2093].forEach((f,i) => {
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type = 'triangle'; o.frequency.value = f;
+      o.connect(g); g.connect(dest);
+      const t = now + 0.05 + i*0.06;
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(0.1*masterVol, t+0.01);
+      g.gain.exponentialRampToValueAtTime(0.001, t+0.4);
+      o.start(t); o.stop(t+0.45);
+    });
+
+    // Layer 4: Kick thump on the hit for punch
+    const kick = ctx.createOscillator();
+    const kickG = ctx.createGain();
+    kick.type = 'sine';
+    kick.frequency.setValueAtTime(120, now);
+    kick.frequency.exponentialRampToValueAtTime(40, now+0.12);
+    kick.connect(kickG); kickG.connect(dest);
+    kickG.gain.setValueAtTime(0.5*masterVol, now);
+    kickG.gain.exponentialRampToValueAtTime(0.001, now+0.18);
+    kick.start(now); kick.stop(now+0.2);
+
+  } catch(e){ console.warn('Correct sound error:', e); }
 }
 function soundWrong() {
-  playTone(200,'sawtooth',0.08,0.4);
-  playTone(150,'sawtooth',0.15,0.4,0.1);
+  try {
+    const ctx = getAudio();
+    const dest = ctx.destination;
+    const now = ctx.currentTime;
+
+    // Cinematic wrong: deep thud + dissonant sting + low rumble
+
+    // Layer 1: Deep bass thud — like a heavy door slamming
+    const thud = ctx.createOscillator();
+    const thudG = ctx.createGain();
+    thud.type = 'sine';
+    thud.frequency.setValueAtTime(80, now);
+    thud.frequency.exponentialRampToValueAtTime(22, now+0.35);
+    thud.connect(thudG); thudG.connect(dest);
+    thudG.gain.setValueAtTime(0.8*masterVol, now);
+    thudG.gain.exponentialRampToValueAtTime(0.001, now+0.5);
+    thud.start(now); thud.stop(now+0.55);
+
+    // Layer 2: Dissonant brass sting — minor 2nd interval (C + Db)
+    [[185,0],[196,0.01],[220,0.02]].forEach(([f,delay]) => {
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      const dist = ctx.createWaveShaper();
+      const c = new Float32Array(256);
+      for(let i=0;i<256;i++){const x=(i*2)/256-1; c[i]=Math.tanh(x*3)*0.7;}
+      dist.curve = c;
+      o.type = 'sawtooth'; o.frequency.value = f;
+      o.connect(dist); dist.connect(g); g.connect(dest);
+      g.gain.setValueAtTime(0, now+delay);
+      g.gain.linearRampToValueAtTime(0.18*masterVol, now+delay+0.02);
+      g.gain.exponentialRampToValueAtTime(0.001, now+delay+0.6);
+      o.start(now+delay); o.stop(now+delay+0.7);
+    });
+
+    // Layer 3: Descending tone — that sinking feeling
+    const desc = ctx.createOscillator();
+    const descG = ctx.createGain();
+    desc.type = 'triangle';
+    desc.frequency.setValueAtTime(300, now+0.05);
+    desc.frequency.exponentialRampToValueAtTime(80, now+0.55);
+    desc.connect(descG); descG.connect(dest);
+    descG.gain.setValueAtTime(0.15*masterVol, now+0.05);
+    descG.gain.exponentialRampToValueAtTime(0.001, now+0.6);
+    desc.start(now+0.05); desc.stop(now+0.65);
+
+    // Layer 4: Noise rumble — cinematic impact texture
+    const bufSize = Math.floor(ctx.sampleRate * 0.08);
+    const buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
+    const data = buf.getChannelData(0);
+    for(let i=0;i<bufSize;i++) data[i] = (Math.random()*2-1) * (1 - i/bufSize);
+    const noise = ctx.createBufferSource();
+    const noiseG = ctx.createGain();
+    const filt = ctx.createBiquadFilter();
+    filt.type = 'lowpass'; filt.frequency.value = 300;
+    noise.buffer = buf;
+    noise.connect(filt); filt.connect(noiseG); noiseG.connect(dest);
+    noiseG.gain.setValueAtTime(0.4*masterVol, now);
+    noiseG.gain.exponentialRampToValueAtTime(0.001, now+0.3);
+    noise.start(now); noise.stop(now+0.35);
+
+  } catch(e){ console.warn('Wrong sound error:', e); }
 }
 function soundRoundFanfare() {
   [523,659,784,1047].forEach((f,i) => playTone(f,'sine',0.18,0.35,i*0.1));
